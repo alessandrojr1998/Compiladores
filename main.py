@@ -1,6 +1,7 @@
 from Lexer.Scanner import Scanner
 import sys
-if __name == "__main__":
+from Parser.Parser import Parser
+if __name__ == "__main__":
     path = sys.argv[1]
     try:
       fonte = open(path, 'r')
@@ -13,6 +14,16 @@ if __name == "__main__":
     lexer = Scanner(programa)
 
     tabTokens = lexer.scan()
+    for i in tabTokens:
+        print(i)
+
+    parser = Parser(tabTokens)
+
+    try:
+      parser.start()
+    except Exception as e:
+        print(e)
+
 
 else:
   print("Executado como um módulo")
