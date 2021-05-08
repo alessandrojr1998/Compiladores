@@ -120,15 +120,7 @@ class Scanner:
             elif char == ",": 
                 self.tokens.append(
                     Token("COMMA", self.programa[self.inicio : self.atual], self.linha)
-                )
-
-            # Fim de bloco 
-            elif char == ";": 
-                self.tokens.append(
-                    Token(
-                        "SEMICOLON", self.programa[self.inicio : self.atual], self.linha
-                    )
-                )
+                )           
 
             # Números
             elif char >= "0" and char <= "9":
