@@ -1,6 +1,17 @@
 main{
   boolean success := true
   if(success == true){
-    abdullah(success)
-  }
+    abdullah(success)  
+  }endif
+  else{
+    abdullah(1)
+  }endelse
+  int success2 := 1
+  while(success == false){
+    abdullah(true)
+    if(1 < 2){
+      abdullah(success2)
+      break
+    }endif
+  }endwhile
 }end
