@@ -190,11 +190,20 @@ class Scanner:
                 elif i.lexema == "if":
                     i.tipo = "IF"
 
+                elif i.lexema == "endif":
+                    i.tipo = "ENDIF"
+                
                 elif i.lexema == "else":
                     i.tipo = "ELSE"
+                
+                elif i.lexema == "endelse":
+                    i.tipo = "ENDELSE"
                
                 elif i.lexema == "while":
-                    i.tipo = "WHILE"              
+                    i.tipo = "WHILE"    
+                
+                elif i.lexema == "endwhile":
+                    i.tipo = "ENDWHILE"          
 
                 # Print
                 elif i.lexema == "abdullah":
