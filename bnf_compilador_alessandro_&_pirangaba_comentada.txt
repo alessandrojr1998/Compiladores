@@ -31,7 +31,7 @@ A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)
 <if-statement>: if ( <boolean-expression> ) <ini-del> <statement> <fin-del> [ { else if ( <boolean-expression> ) <ini-del> <statement><fin-del>) | ε } else <ini-del> <statement> <fin-del> ] 
 
 6. Comando de laço (while) 
-<iteration-statement>: while ( <boolean-expression> ) <ini-del> <statement> <fin-del> 
+<iteration-statement>: while ( <boolean-expression> ) <ini-del> <statement> <fin-del>endwhile 
 
 7. Comando de retorno de valor 
 <return-statement>: return <denomination> 
