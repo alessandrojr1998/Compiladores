@@ -157,6 +157,9 @@ class Scanner:
                 # função
                 elif i.lexema == "func":
                   i.tipo = "FUNC"
+                  
+                elif i.lexema == "endfunc":
+                    i.tipo = "ENDFUNC"
 
                 # procedimento
                 elif i.lexema == "proc":
