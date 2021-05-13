@@ -1,17 +1,38 @@
 main{
+
   boolean success := true
+
   if(success == true){
     abdullah(success)  
   }endif
   else{
     abdullah(1)
   }endelse
+
   int success2 := 1
+
   while(success == false){
+
     abdullah(true)
+
     if(1 < 2){
       abdullah(success2)
       break
     }endif
+
   }endwhile
+
+  success := false
+
+  func chamar(int a){
+    a := false    
+    return adadsasfga
+  }endfunc
+
+  proc buscar(int a, boolean b){
+    b := true
+    if(1 < 2){
+      abdullah(success2)      
+    }endif
+  }
 }end
