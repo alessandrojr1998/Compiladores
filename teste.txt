@@ -20,6 +20,11 @@ main{
       break
     }endif
 
+    if(3 == 4){
+      abdullah(success)
+      continue
+    }endif
+
   }endwhile
 
   success := false
