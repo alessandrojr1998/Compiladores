@@ -38,6 +38,9 @@ main{
       abdullah(success2)      
     }endif
   }
+  
+  int feijao := funccall chamar()
+  proccall achar(1,2892)
 
   
   
