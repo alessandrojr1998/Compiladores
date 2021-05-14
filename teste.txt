@@ -1,0 +1,52 @@
+main{
+
+  boolean success := true
+
+  if(success == true){
+    abdullah(success)  
+  }endif
+  else{
+    abdullah(1)
+  }endelse
+
+  int success2 := 1
+
+  while(success == false){
+
+    abdullah(true)
+
+    if(1 < 2){
+      abdullah(success2)
+      break
+    }endif
+
+    if(3 == 4){
+      abdullah(success)
+      continue
+    }endif
+
+  }endwhile
+
+  success := false
+
+  func chamar(int a){
+    a := false    
+    return adadsasfga
+  }endfunc
+
+  int arroz := funccall chamar(2, 2, 3, 4, true, false, abc)
+  proccall buscar(1, 3, 4)
+
+  proc buscar(int a, boolean b){
+    b := true
+    if(1 < 2){
+      abdullah(success2)      
+    }endif
+  }
+  
+  int feijao := funccall chamar()
+  proccall achar(1,2892)
+
+  
+  
+}end

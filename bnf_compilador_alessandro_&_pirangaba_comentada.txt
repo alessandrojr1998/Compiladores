@@ -1,0 +1,77 @@
+﻿NOME DO COMPILADOR: Abdullah-compiler 
+
+0.. Variável inicial 
+<main>: main <ini-del> <statement> <fin-del> end
+<ini-del>: { 
+<fin-del>: } 
+
+1. Declaração de variáveis de tipo inteiro e booleano 
+<type-specifier>: int | boolean 
+
+2. Declaração de procedimentos e funções (sem e com parâmetros) 
+<function-definition>: func <denomination> ({<params>}| ε) <ini-del> < statement > <return-statement> <fin-del> 
+<params>: <type-specifier> <denomination> ,
+<denomination>: <letter> {<letter> | <number> | ε} 
+<letter>: (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z| 
+A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z) 
+<number>: {0|1|2|3|4|5|6|7|8|9} 
+<logic>: true | false 
+<variable-definition>: <type-specifier> <denomination> <assignment-expression> [<number> | <logic> | <arithmetic-operator> ] 
+<procedure-definition>: proc <denomination> ({<params>}| ε) <ini-del> <statement> <fin-del>
+
+3. Comandos de atribuição 
+<assignment-expression>: := 
+
+4. Chamada de procedimentos e funções 
+<function-calling>: <type-specifier> <denomination> <assignment-expression> <denomination> ({<argument>}| ε) 
+<argument>: [<denomination> | <logic> | <number>]
+<procedure-calling>: <denomination> ({<argument>}| ε) 
+
+5. Comando de desvio condicional (if e else) 
+<if-statement>: if ( <boolean-expression> ) <ini-del> <statement> <fin-del> [ { else if ( <boolean-expression> ) <ini-del> <statement><fin-del>) | ε } else <ini-del> <statement> <fin-del> ] 
+
+6. Comando de laço (while) 
+<iteration-statement>: while ( <boolean-expression> ) <ini-del> <statement> <fin-del>endwhile 
+
+7. Comando de retorno de valor 
+<return-statement>: return <denomination> | <logic>
+
+8. Comandos de desvio incondicional (break e continue) 
+<jump-statement>: 
+continue  
+| break  
+
+9. Comando de impressão de constante e variável na tela 
+<print-statement>: abdullah (<denomination> | <number> | <logic>) 
+
+10. Expressões aritméticas (+, -, * e /) 
+<arithmetic-operator> : 
+[<denomination> | <number> ] <unary-operator> [ <denomination> | 
+<number> ] 
+<unary-operator>: 
+| * 
+| + 
+| - 
+| /
+
+11. Expressões booleanas (==, !=, >, >=, <, <=). 
+<boolean-expression>: 
+[ <denomination> | <number> ] <unary-boolean> [ <denomination> | <number> ] 
+<unary-boolean>: == 
+| != 
+| > 
+| >= 
+| < 
+| <= 
+<statement>: 
+{ 
+<function-definition> | 
+<variable-definition> | 
+<procedure-definition> | 
+<function-calling> | 
+<procedure-calling> | 
+<if-statement> | 
+<iteration-statement> | 
+<jump-statement> | 
+<print-statement> 
+};
