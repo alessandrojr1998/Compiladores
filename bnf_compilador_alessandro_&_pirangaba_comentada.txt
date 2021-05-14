@@ -20,10 +20,10 @@ A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)
 <procedure-definition>: proc <denomination> ({<params>}| ε) <ini-del> <statement> <fin-del>
 
 3. Comandos de atribuição 
-<assignment-expression>: <- 
+<assignment-expression>: := 
 
 4. Chamada de procedimentos e funções 
-<function-calling>: <denomination> <assignment-expression> <denomination> ({<argument>}| ε) 
+<function-calling>: <type-specifier> <denomination> <assignment-expression> <denomination> ({<argument>}| ε) 
 <argument>: [<denomination> | <logic> | <number>]
 <procedure-calling>: <denomination> ({<argument>}| ε) 
 
