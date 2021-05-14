@@ -60,7 +60,7 @@ class Parser:
     else:
       raise Exception("Erro sintático na linha", str(self.tokenAtual().linha))
   
-  def blockStatement(self):
+  def blockStatement(self, isWhile = False, isIf = False):    
     #self.indexToken +=1
     if self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN":
       temp = []
@@ -70,11 +70,18 @@ class Parser:
       return temp
 
     if self.tokenAtual().tipo == "IF":
-      temp = []
-      temp.append(self.tokenAtual().linha)
-      temp.append(self.tokenAtual().tipo)
-      self.if_statement(temp)
-      return temp
+      if isWhile:
+        temp = []
+        temp.append(self.tokenAtual().linha)
+        temp.append(self.tokenAtual().tipo)
+        self.if_statement_while(temp)
+        return temp
+      else:
+        temp = []
+        temp.append(self.tokenAtual().linha)
+        temp.append(self.tokenAtual().tipo)
+        self.if_statement(temp)
+        return temp
     
     if self.tokenAtual().tipo == "PRINT":
       temp = []
@@ -99,21 +106,52 @@ class Parser:
       return temp
 
     if self.tokenAtual().tipo == "FUNC":
-      temp = []
-      temp.append(self.tokenAtual().linha)
-      # temp.append('FUNC')
-      temp.append(self.tokenAtual().tipo)
+      if not(isIf):
+        temp = []
+        temp.append(self.tokenAtual().linha)
+        # temp.append('FUNC')
+        temp.append(self.tokenAtual().tipo)
 
-      self.declaration_func_statement(temp)
-      return temp
-    
+        self.declaration_func_statement(temp)
+        return temp
+      else:
+        raise Exception(
+          "Erro sintático: declaração de função não permitida no bloco do if/else na linha " +
+          str(self.tokenAtual().linha)
+          ) 
     if self.tokenAtual().tipo == "PROC":  
-      self.declaration_proc_statement()
-      return
-      
+      if not(isIf):
+        self.declaration_proc_statement()
+        return
+      else:
+        raise Exception(
+          "Erro sintático: declaração de procedimento não permitida no bloco do if/else na linha " +
+          str(self.tokenAtual().linha)
+          )
     if self.tokenAtual().tipo == "PROCCALL":      
       self.call_proc()
       return
+    
+    if self.tokenAtual().tipo == "BREAK" or self.tokenAtual().tipo == "CONTINUE":
+      if isWhile:
+        temp = []
+        temp.append(self.tokenAtual().linha)
+        temp.append(self.tokenAtual().tipo)
+        self.indexToken += 1
+        return temp
+      else:
+        if self.tokenAtual().tipo == "BREAK":
+          raise Exception(
+            "Erro sintático: BREAK chamado fora de um laço linha " +
+            str(self.tokenAtual().linha)
+            )    
+        elif self.tokenAtual().tipo == "CONTINUE":
+          raise Exception(
+            "Erro sintático: CONTINUE chamado fora de um laço linha " +
+            str(self.tokenAtual().linha)
+            )
+         
+    
     self.indexToken +=1
     return
 
@@ -237,7 +275,69 @@ class Parser:
          
           while(self.tokenAtual().tipo != "FINDEL"
               and self.tokenLookAhead().tipo != "ENDIF"):
-            tempBlock.append(self.blockStatement3())
+            tempBlock.append(self.blockStatement(isIf=True))
+            
+          temp.append(tempBlock)
+
+          if self.tokenAtual().tipo == "FINDEL":            
+            temp.append(self.tokenAtual().tipo)
+            self.indexToken += 1
+            if self.tokenAtual().tipo == "ENDIF":
+              temp.append(self.tokenAtual().tipo)
+              self.indexToken += 1
+              tempElse = []
+              if self.tokenAtual().tipo == "ELSE":
+                tempElse.append(self.tokenAtual().tipo)
+                tempElse = self.else_part_statement(tempElse)
+                temp.append(tempElse)
+              else:
+                #temp.append(tempElse)
+                self.tabTokens.append(temp)                      
+            else:
+              raise Exception(
+                  "Erro sintático: falta de ENDIF "
+                  + str(self.tokenAtual().linha)
+              )
+          else:
+            raise Exception(
+              "Erro sintático: falta do FINDEL na linha",
+              str(self.tokenAtual().linha)
+            )
+        else:
+          raise Exception(
+              "Erro sintático: falta do INIDEL ou bloco vazio na linha "
+              + str(self.tokenAtual().linha)
+          )
+
+      else:
+        raise Exception(
+            "Erro sintático: falta do parêntese direito na linha",
+            str(self.tokenAtual().linha)
+        )
+    else:
+      raise Exception(
+          "Erro sintático: falta do parêntese esquerdo na linha",
+          str(self.tokenAtual().linha)
+      )
+  
+  def if_statement_while(self, temp): #if que tem o block com break e continue
+    self.indexToken += 1
+    if self.tokenAtual().tipo == "PLEFT":
+      self.indexToken += 1
+      tempExpression = []
+      tempExpression = self.boolean_expression(tempExpression)
+      temp.append(tempExpression)
+
+      if self.tokenAtual().tipo == "PRIGHT":
+        lookAhead = self.tokenLookAhead()
+        self.indexToken += 1
+        if self.tokenAtual().tipo == "INIDEL" and lookAhead.tipo != "FINDEL":
+          self.indexToken +=1
+          tempBlock = []
+         
+          while(self.tokenAtual().tipo != "FINDEL"
+              and self.tokenLookAhead().tipo != "ENDIF"):
+            tempBlock.append(self.blockStatement(True, True))
             
           temp.append(tempBlock)
 
@@ -291,7 +391,7 @@ class Parser:
       self.indexToken += 1
       tempBlock = []
       while(self.tokenAtual().tipo != "FINDEL" and self.tokenLookAhead().tipo != "ENDELSE"):         
-        tempBlock.append(self.blockStatement3())
+        tempBlock.append(self.blockStatement(isIf=True))
       tempElse.append(tempBlock)
       if self.tokenAtual().tipo == "FINDEL":
         self.indexToken += 1
@@ -323,7 +423,7 @@ class Parser:
       self.indexToken += 1
       tempBlock = []
       while(self.tokenAtual().tipo != "FINDEL" and self.tokenLookAhead().tipo != "ENDELSE"):          
-        tempBlock.append(self.blockStatement2())
+        tempBlock.append(self.blockStatement(isWhile=True))
       tempElse.append(tempBlock)
       
       if self.tokenAtual() == "FINDEL":
@@ -370,7 +470,7 @@ class Parser:
             self.tokenAtual().tipo != "FINDEL"
             and self.tokenLookAhead() != "ENDWHILE"
               ):
-              tempBlock.append(self.blockStatement2())
+              tempBlock.append(self.blockStatement(isWhile=True))
               
             temp.append(tempBlock)
             
@@ -408,68 +508,8 @@ class Parser:
       raise Exception(
           "Erro sintático: falta do parêntese esquerdo na linha "+
           str(self.tokenAtual().linha)
-      )
+      ) 
       
-  def blockStatement2(self):
-    
-    if self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN":
-      temp = []
-      temp.append(self.tokenAtual().linha)
-      temp.append(self.tokenAtual().tipo)
-      self.variable_definition(temp)      
-      return temp
-    
-    if self.tokenAtual().tipo == "IF":
-      temp = []
-      temp.append(self.tokenAtual().linha)
-      temp.append(self.tokenAtual().tipo)
-      self.if_statement_while(temp)
-      return temp
-    
-    if self.tokenAtual().tipo == "PRINT":
-      temp = []
-      temp.append(self.tokenAtual().linha)
-      temp.append(self.tokenAtual().tipo)
-      self.print_statement(temp)
-      return temp
-    
-    if self.tokenAtual().tipo == "WHILE":
-      temp = []
-      temp.append(self.tokenAtual().linha)
-      temp.append(self.tokenAtual().tipo)
-      self.while_statement(temp)
-      return temp
-    
-    if self.tokenAtual().tipo == "BREAK" or self.tokenAtual().tipo == "CONTINUE":
-      temp = []
-      temp.append(self.tokenAtual().linha)
-      temp.append(self.tokenAtual().tipo)
-      self.indexToken += 1
-      return temp
-    
-  def blockStatement3(self):   
-    
-    if self.tokenAtual().tipo == "PRINT":
-      temp = []
-      temp.append(self.tokenAtual().linha)
-      temp.append(self.tokenAtual().tipo)
-      self.print_statement(temp)
-      return temp
-    
-    else:      
-      #self.indexToken += 1
-      #return
-      raise Exception(
-          "Erro sintático na linha",
-          str(self.tokenAtual().linha)
-      )
-
-    #else:      
-     # raise Exception(
-      #    "Erro sintático: bloco vazio na linha",
-       #   str(self.tokenAtual().linha)
-      #)
-
   def print_statement(self, temp):
     self.indexToken += 1
     if self.tokenAtual().tipo == "PLEFT":
@@ -524,73 +564,7 @@ class Parser:
           "Erro sintático: falta do ID na linha",
           str(self.tokenAtual().linha)
         )  
-        
-  def if_statement_while(self, temp): #if que tem o block com break e continue
-    self.indexToken += 1
-    if self.tokenAtual().tipo == "PLEFT":
-      self.indexToken += 1      
-      tempExpression = []
-      tempExpression = self.boolean_expression(tempExpression)
-      temp.append(tempExpression)
-      if self.tokenAtual().tipo == "PRIGHT":
-        lookAhead = self.tokenLookAhead()
-        self.indexToken += 1
-        
-        if self.tokenAtual().tipo == "INIDEL":
-          if lookAhead.tipo != "FINDEL":
-            self.indexToken += 1
-            tempBlock = []
-            
-            while(self.tokenAtual().tipo != "FINDEL"
-              and self.tokenLookAhead().tipo != "ENDIF"):
-              tempBlock.append(self.blockStatement2())
-            
-            temp.append(tempBlock)
-            if self.tokenAtual().tipo == "FINDEL":    
-              temp.append(self.tokenAtual().tipo)
-              self.indexToken += 1
-              if self.tokenAtual().tipo == "ENDIF":
-                temp.append(self.tokenAtual().tipo)
-                self.indexToken += 1
-                tempElse = []
-                if self.tokenAtual().tipo == "ELSE":
-                  tempElse.append(self.tokenAtual().tipo)
-                  tempElse = self.else_part_statement2(tempElse)
-                  temp.append(tempElse)
-                else:
-                  #temp.append(tempElse)
-                  self.tabTokens.append(temp)
-              else:
-                raise Exception(
-                    "Erro sintático: falta de ENDIF "
-                    + str(self.tokenAtual().linha)
-                )  
-            else:
-              raise Exception(
-                "Erro sintático: falta do FINDEL na linha",
-                str(self.tokenAtual().linha)
-              )  
-          else:
-            raise Exception(
-              "Erro sintático: bloco vazio na linha "
-              + str(self.tokenAtual().linha)
-          )
-        else:
-          raise Exception(
-              "Erro sintático: falta do INIDEL na linha "
-              + str(self.tokenAtual().linha)
-          )
-      else:
-        raise Exception(
-            "Erro sintático: falta do parêntese direito na linha",
-            str(self.tokenAtual().linha)
-        )
-    else:
-      raise Exception(
-          "Erro sintático: falta do parêntese esquerdo na linha",
-          str(self.tokenAtual().linha)
-      )
-        
+           
   def call_var_statement(self, temp):
     self.indexToken += 1
     if self.tokenAtual().tipo == "ATB":  # atribuicao
