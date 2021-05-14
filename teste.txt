@@ -29,10 +29,16 @@ main{
     return adadsasfga
   }endfunc
 
+  int arroz := funccall chamar(2, 2, 3, 4, true, false, abc)
+  proccall buscar(1, 3, 4)
+
   proc buscar(int a, boolean b){
     b := true
     if(1 < 2){
       abdullah(success2)      
     }endif
   }
+
+  
+  
 }end
