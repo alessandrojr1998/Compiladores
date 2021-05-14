@@ -66,7 +66,7 @@ class Parser:
       temp = []
       temp.append(self.tokenAtual().linha)
       temp.append(self.tokenAtual().tipo)
-      self.variable_definition(temp)      
+      self.variable_definition(temp)           
       return temp
 
     if self.tokenAtual().tipo == "IF":
@@ -107,9 +107,13 @@ class Parser:
       self.declaration_func_statement(temp)
       return temp
     
-    if self.tokenAtual().tipo == "PROC":   
+    if self.tokenAtual().tipo == "PROC":  
       self.declaration_proc_statement()
-    
+      return
+      
+    if self.tokenAtual().tipo == "PROCCALL":      
+      self.call_proc()
+      return
     self.indexToken +=1
     return
 
@@ -119,11 +123,14 @@ class Parser:
       temp.append(self.tokenAtual().lexema)
       self.indexToken += 1
       if self.tokenAtual().tipo == "ATB":
-        temp.append(self.tokenAtual().lexema)
         self.indexToken += 1
-        tempEndVar = []
-        self.type_var(tempEndVar)
-        temp.append(tempEndVar)
+        if self.tokenAtual().tipo == "FUNCCALL":          
+          self.call_func()        
+        else:  
+          temp.append(self.tokenAtual().lexema)        
+          tempEndVar = []
+          self.type_var(tempEndVar)
+          temp.append(tempEndVar)
       else:
           raise Exception(
               "Erro sintático: falta atribuição na linha",
@@ -672,7 +679,7 @@ class Parser:
             if self.tokenAtual().tipo == "COMMA":
                 self.params_statement()
             elif (
-                self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN"
+              not(self.tokenAtual().tipo == "PRIGHT")
             ):
                 raise Exception(
                     "Erro sintático: falta vírgula na linha "
@@ -688,7 +695,28 @@ class Parser:
             "Erro sintatico: é necessário informar um tipo na linha "
             + str(self.tokenAtual().linha)
         )
-  
+        
+  def argument_statement(self):
+    
+    if self.tokenAtual().tipo == "ID" or self.tokenAtual().tipo == "LOGIC" or self.tokenAtual().tipo == "NUM":
+        self.indexToken += 1
+        if self.tokenAtual().tipo == "COMMA":
+          self.indexToken += 1
+          self.argument_statement()
+            
+        elif (
+          not(self.tokenAtual().tipo == "PRIGHT")
+        ):
+          raise Exception(
+              "Erro sintático: falta vírgula na linha "
+              + str(self.tokenAtual().linha)
+          )        
+    else:
+        raise Exception(
+          "Erro sintatico: é necessário informar alguma váriavel na linha "
+          + str(self.tokenAtual().linha)
+        )
+      
   def return_statement(self):
     self.indexToken += 1 
     # Se for chamada de variavel/num/bool
@@ -704,6 +732,7 @@ class Parser:
     
   def declaration_proc_statement(self):
     self.indexToken += 1
+    
     if self.tokenAtual().tipo == "ID":
       self.indexToken += 1
       if self.tokenAtual().tipo == "PLEFT":
@@ -744,3 +773,47 @@ class Parser:
       "Erro sintático: falta identificador da função na linha "
       + str(self.tokenAtual().linha)
     ) 
+     
+  def call_func(self):
+    self.indexToken += 1
+    if self.tokenAtual().tipo == "ID":
+      self.indexToken += 1
+      if self.tokenAtual().tipo == "PLEFT":
+        self.indexToken += 1
+        if not(self.tokenAtual().tipo == "PRIGHT"):        
+          self.argument_statement()    
+        else: 
+          self.indexToken += 1   
+      else:
+        raise Exception(
+          "Erro sintático: falta parêntese esquerdo na linha "
+          + str(self.tokenAtual().linha)
+        )
+    else:
+      raise Exception(
+        "Erro sintático: falta o nome da função na linha "
+        + str(self.tokenAtual().linha)
+      ) 
+      
+  def call_proc(self):
+    self.indexToken += 1
+    if self.tokenAtual().tipo == "ID":
+      self.indexToken += 1
+      if self.tokenAtual().tipo == "PLEFT":
+        self.indexToken += 1
+        if not(self.tokenAtual().tipo == "PRIGHT"):        
+          self.argument_statement()   
+        else: 
+          self.indexToken += 1  
+            
+      else:
+        raise Exception(
+          "Erro sintático: falta parêntese esquerdo na linha "
+          + str(self.tokenAtual().linha)
+        )
+    else:
+      raise Exception(
+        "Erro sintático: falta o nome da função na linha "
+        + str(self.tokenAtual().linha)
+      ) 
+    
