@@ -46,33 +46,33 @@ class Parser:
   
   def blockStatement(self, isWhile = False, isIf = False):  
     if self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN":      
-      self.variable_definition()           
+      self.variableDefinition()           
       return 
 
     if self.tokenAtual().tipo == "IF":
       if isWhile:
-        self.if_statement_while()
+        self.ifStatementWhile()
         return 
       else:
-        self.if_statement()
+        self.ifStatement()
         return 
     
     if self.tokenAtual().tipo == "PRINT":
-      self.print_statement()
+      self.printStatement()
       return 
     
     if self.tokenAtual().tipo == "WHILE":
-      self.while_statement()
+      self.whileStatement()
       return 
     
     if self.tokenAtual().tipo == "ID":
-      self.call_var_statement()
+      self.callVarStatement()
       return 
 
     if self.tokenAtual().tipo == "FUNC":
       if not(isIf):
 
-        self.declaration_func_statement()
+        self.declarationFuncStatement()
         return 
       else:
         raise Exception(
@@ -81,7 +81,7 @@ class Parser:
           ) 
     if self.tokenAtual().tipo == "PROC":  
       if not(isIf):
-        self.declaration_proc_statement()
+        self.declarationProcStatement()
         return
       else:
         raise Exception(
@@ -89,7 +89,7 @@ class Parser:
           str(self.tokenAtual().linha)
           )
     if self.tokenAtual().tipo == "PROCCALL":      
-      self.call_proc()
+      self.callProc()
       return
     
     if self.tokenAtual().tipo == "BREAK" or self.tokenAtual().tipo == "CONTINUE":
@@ -110,16 +110,16 @@ class Parser:
     self.indexToken +=1
     return
 
-  def variable_definition(self):
+  def variableDefinition(self):
     self.indexToken += 1
     if self.tokenAtual().tipo == "ID":
       self.indexToken += 1
       if self.tokenAtual().tipo == "ATB":
         self.indexToken += 1
         if self.tokenAtual().tipo == "FUNCCALL":          
-          self.call_func()        
+          self.callFunc()        
         else:        
-          self.type_var()
+          self.typeVar()
       else:
           raise Exception(
               "Erro sintático: falta atribuição na linha",
@@ -131,7 +131,7 @@ class Parser:
               str(self.tokenAtual().linha)
           )
 
-  def type_var(self):
+  def typeVar(self):
     if self.tokenAtual().tipo == "LOGIC":
         if (
           self.tokenAtual().lexema == "true"
@@ -151,7 +151,7 @@ class Parser:
         str(self.tokenAtual().linha)
       )
 
-  def boolean_expression(self):
+  def booleanExpression(self):
     if self.tokenAtual().tipo == "ID" or self.tokenAtual().tipo == "NUM" or self.tokenAtual().tipo == "LOGIC":
       
       if(self.tokenAtual().tipo == "LOGIC" and self.tokenAtual().lexema != 'false'):
@@ -201,11 +201,11 @@ class Parser:
         str(self.tokenAtual().linha)
       )
 
-  def if_statement(self):
+  def ifStatement(self):
     self.indexToken += 1
     if self.tokenAtual().tipo == "PLEFT":
       self.indexToken += 1
-      self.boolean_expression()
+      self.booleanExpression()
 
       if self.tokenAtual().tipo == "PRIGHT":
         lookAhead = self.tokenLookAhead()
@@ -222,7 +222,7 @@ class Parser:
             if self.tokenAtual().tipo == "ENDIF":
               self.indexToken += 1
               if self.tokenAtual().tipo == "ELSE":
-                self.else_part_statement()                    
+                self.elsePartStatement()                    
             else:
               raise Exception(
                   "Erro sintático: falta de ENDIF "
@@ -250,11 +250,11 @@ class Parser:
           str(self.tokenAtual().linha)
       )
   
-  def if_statement_while(self): 
+  def ifStatementWhile(self): 
     self.indexToken += 1
     if self.tokenAtual().tipo == "PLEFT":
       self.indexToken += 1
-      self.boolean_expression()
+      self.booleanExpression()
 
       if self.tokenAtual().tipo == "PRIGHT":
         lookAhead = self.tokenLookAhead()
@@ -271,7 +271,7 @@ class Parser:
             if self.tokenAtual().tipo == "ENDIF":
               self.indexToken += 1
               if self.tokenAtual().tipo == "ELSE":
-                self.else_part_statement()                                   
+                self.elsePartStatement()                                   
             else:
               raise Exception(
                 "Erro sintático: falta de ENDIF "
@@ -299,7 +299,7 @@ class Parser:
           str(self.tokenAtual().linha)
       )
 
-  def else_part_statement(self):
+  def elsePartStatement(self):
     
     lookAhead = self.tokenLookAhead()
     self.indexToken += 1
@@ -328,7 +328,7 @@ class Parser:
           str(self.tokenAtual().linha)
       )
       
-  def else_part_statement2(self):
+  def elsePartStatement2(self):
     lookAhead = self.tokenLookAhead()
     self.indexToken += 1
     if self.tokenAtual().tipo == "INIDEL" and lookAhead != "FINDEL":  
@@ -358,11 +358,11 @@ class Parser:
           str(self.tokenAtual().linha)
       )
   
-  def while_statement(self):
+  def whileStatement(self):
     self.indexToken += 1
     if self.tokenAtual().tipo == "PLEFT":
       self.indexToken += 1
-      self.boolean_expression()      
+      self.booleanExpression()      
       
       if self.tokenAtual().tipo == "PRIGHT":
         self.indexToken += 1      
@@ -411,11 +411,11 @@ class Parser:
           str(self.tokenAtual().linha)
       ) 
       
-  def print_statement(self):
+  def printStatement(self):
     self.indexToken += 1
    
     if self.tokenAtual().tipo == "PLEFT":
-      self.params_print_statement()
+      self.paramsPrintStatement()
       self.indexToken += 1
       if self.tokenAtual().tipo == "PRIGHT":
         self.indexToken += 1
@@ -430,7 +430,7 @@ class Parser:
           str(self.tokenAtual().linha)
       )
 
-  def params_print_statement(self):
+  def paramsPrintStatement(self):
     self.indexToken += 1
     if(
       (self.tokenAtual().tipo == "NUM")
@@ -444,7 +444,7 @@ class Parser:
         str(self.tokenAtual().linha)
       )
   
-  def call_op_statement(self):
+  def callOpStatement(self):
     self.indexToken += 1
     if self.tokenAtual().tipo == "ID" or self.tokenAtual().tipo == "NUM":
         self.indexToken += 1
@@ -454,7 +454,7 @@ class Parser:
           or self.tokenAtual().tipo == "MULT"
           or self.tokenAtual().tipo == "DIV"
         ):
-          self.call_op_statement()            
+          self.callOpStatement()            
         else:          
           return
     else:
@@ -463,7 +463,7 @@ class Parser:
           str(self.tokenAtual().linha)
         )  
            
-  def call_var_statement(self):
+  def callVarStatement(self):
     self.indexToken += 1
     if self.tokenAtual().tipo == "ATB":  
         self.indexToken += 1
@@ -484,13 +484,13 @@ class Parser:
             + str(self.tokenAtual().linha)
         )
 
-  def declaration_func_statement(self):
+  def declarationFuncStatement(self):
     self.indexToken += 1
     if self.tokenAtual().tipo == "ID":
       self.indexToken += 1
       if self.tokenAtual().tipo == "PLEFT": 
         if not(self.tokenLookAhead().tipo == "PRIGHT"):        
-          self.params_statement()
+          self.paramsStatement()
           if not(self.tokenAtual().tipo == "PRIGHT"):                      
             raise Exception(
               "Erro sintático: falta parêntese direito na linha "
@@ -511,7 +511,7 @@ class Parser:
                 ) 
               else:
                 self.blockStatement()
-            self.return_statement()
+            self.returnStatement()
             self.indexToken +=1  
     
             if not(self.tokenAtual().tipo == "FINDEL"):                       
@@ -547,7 +547,7 @@ class Parser:
       + str(self.tokenAtual().linha)
     ) 
    
-  def params_statement(self):
+  def paramsStatement(self):
     self.indexToken += 1
     
     if self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN":
@@ -555,7 +555,7 @@ class Parser:
         if self.tokenAtual().tipo == "ID":
             self.indexToken += 1
             if self.tokenAtual().tipo == "COMMA":
-                self.params_statement()
+                self.paramsStatement()
             elif (
               not(self.tokenAtual().tipo == "PRIGHT")
             ):
@@ -574,13 +574,13 @@ class Parser:
             + str(self.tokenAtual().linha)
         )
         
-  def argument_statement(self):
+  def argumentStatement(self):
     
     if self.tokenAtual().tipo == "ID" or self.tokenAtual().tipo == "LOGIC" or self.tokenAtual().tipo == "NUM":
         self.indexToken += 1
         if self.tokenAtual().tipo == "COMMA":
           self.indexToken += 1
-          self.argument_statement()
+          self.argumentStatement()
             
         elif (
           not(self.tokenAtual().tipo == "PRIGHT")
@@ -596,7 +596,7 @@ class Parser:
           + str(self.tokenAtual().linha)
         )
       
-  def return_statement(self):
+  def returnStatement(self):
     self.indexToken += 1 
     if (
         not((self.tokenAtual().tipo == "NUM")
@@ -608,14 +608,14 @@ class Parser:
         + str(self.tokenAtual().linha)
       )   
     
-  def declaration_proc_statement(self):
+  def declarationProcStatement(self):
     self.indexToken += 1
     
     if self.tokenAtual().tipo == "ID":
       self.indexToken += 1
       if self.tokenAtual().tipo == "PLEFT":
         if not(self.tokenLookAhead().tipo == "PRIGHT"): 
-          self.params_statement()
+          self.paramsStatement()
           if not(self.tokenAtual().tipo == "PRIGHT"):                      
             raise Exception(
               "Erro sintático: falta parêntese direito na linha "
@@ -652,14 +652,14 @@ class Parser:
       + str(self.tokenAtual().linha)
     ) 
      
-  def call_func(self):
+  def callFunc(self):
     self.indexToken += 1
     if self.tokenAtual().tipo == "ID":
       self.indexToken += 1
       if self.tokenAtual().tipo == "PLEFT":
         self.indexToken += 1
         if not(self.tokenAtual().tipo == "PRIGHT"):        
-          self.argument_statement()    
+          self.argumentStatement()    
         else: 
           self.indexToken += 1   
       else:
@@ -673,14 +673,14 @@ class Parser:
         + str(self.tokenAtual().linha)
       ) 
       
-  def call_proc(self):
+  def callProc(self):
     self.indexToken += 1
     if self.tokenAtual().tipo == "ID":
       self.indexToken += 1
       if self.tokenAtual().tipo == "PLEFT":
         self.indexToken += 1
         if not(self.tokenAtual().tipo == "PRIGHT"):        
-          self.argument_statement()   
+          self.argumentStatement()   
         else: 
           self.indexToken += 1  
             
