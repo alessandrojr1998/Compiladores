@@ -14,8 +14,10 @@ if __name__ == "__main__":
     lexer = Scanner(programa)
 
     tabTokens = lexer.scan()
+    '''
     for i in tabTokens:
         print(i)
+    '''
 
     parser = Parser(tabTokens)
 
