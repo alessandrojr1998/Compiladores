@@ -1,0 +1,28 @@
+main{
+  int gols := 10
+
+  boolean ganhou := true
+
+  while(i == 4){
+    abdullah(i)
+    i := i+1
+    abdullah(gols)
+  }endwhile
+
+  func chutar(int a){  
+    a := a+1      
+    return a 
+  }endfunc
+
+  proc defender(int a, boolean b){    
+    if(b == true){
+      a := a + 1
+      abdullah(a)      
+    }endif
+  }
+
+  int chutes := funccall chutar(1)
+  proccall defender(1,true)
+
+}end
+
