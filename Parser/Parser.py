@@ -16,33 +16,45 @@ class Parser:
     return
 
   def statementList(self):
-    if self.tokenAtual().tipo == "END":
-      return
+    if(len(self.tabTokens) != 0):
+      if self.tokenAtual().tipo == "END":
+        return
+      else:
+        self.statement()
+        self.statementList()
+        return
     else:
-      self.statement()
-      self.statementList()
-      return
+      raise Exception(
+        "Erro sintático: falta do main."
+      )
       
-  def statement(self):
+  def statement(self):    
     if self.tokenAtual().tipo == "MAIN":
       self.indexToken += 1
       if self.tokenAtual().tipo == "INIDEL":
         self.indexToken +=1
-
-        while self.tokenAtual().tipo != "END":
-          self.blockStatement()
         
-        if self.tokenAtual().tipo == "END":
-          print("\nAnálise Sintática Finalizada\n")
-        else:
+        while self.tokenAtual().tipo != "FINDEL":
+          self.blockStatement()
+        if self.tokenAtual().tipo == "FINDEL":
+          self.indexToken +=1        
+          try:
+            if self.tokenAtual().tipo == "END":
+              print("\nAnálise Sintática Finalizada\n")
+            else:
+                raise Exception(
+                "Erro sintático: falta do end na linha "+ str(self.tokenAtual().linha)
+                )
+          except Exception:
             raise Exception(
-                "Erro sintático: falta do end na linha", str(self.tokenAtual().linha)
-            )
+                "Erro sintático: falta do end no final do código"
+                )
+            
       else:
-         raise Exception("Erro sintático: faltando INIDEL na linha", str(self.tokenAtual().linha))
+         raise Exception("Erro sintático: faltando INIDEL na linha "+ str(self.tokenAtual().linha))
 
     else:
-      raise Exception("Erro sintático na linha", str(self.tokenAtual().linha))
+      raise Exception("Erro sintático na linha " + str(self.tokenAtual().linha))
   
   def blockStatement(self, isWhile = False, isIf = False):  
     if self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN":      
@@ -122,12 +134,12 @@ class Parser:
           self.typeVar()
       else:
           raise Exception(
-              "Erro sintático: falta atribuição na linha",
+              "Erro sintático: falta atribuição na linha " +
               str(self.tokenAtual().linha)
           )
     else:
           raise Exception(
-              "Erro sintático: falta ID na linha",
+              "Erro sintático: falta ID na linha " +
               str(self.tokenAtual().linha)
           )
 
@@ -140,14 +152,14 @@ class Parser:
           self.indexToken += 1            
         else:
           raise Exception(
-              "Erro sintático. boolean atribuido errado na linha",
+              "Erro sintático. boolean atribuido errado na linha " +
             str(self.tokenAtual().linha)
           )
     elif self.tokenAtual().tipo == "NUM":
       self.indexToken += 1      
     else:
       raise Exception(
-        "Erro sintático: atribuição de variavel errada na linha",
+        "Erro sintático: atribuição de variavel errada na linha " +
         str(self.tokenAtual().linha)
       )
 
@@ -186,18 +198,18 @@ class Parser:
           return 
         else:          
           raise Exception(
-              "Erro sintático: falta do ID na linha",
+              "Erro sintático: falta do ID na linha " +
               str(self.tokenAtual().linha)
           )      
       else:
         raise Exception(
-            "Erro sintático: falta do operador booleano na linha",
+            "Erro sintático: falta do operador booleano na linha " +
             str(self.tokenAtual().linha)
         )
      
     else:
       raise Exception(
-        "Erro sintático: falta do ID na linha",
+        "Erro sintático: falta do ID na linha " +
         str(self.tokenAtual().linha)
       )
 
@@ -230,7 +242,7 @@ class Parser:
               )
           else:
             raise Exception(
-              "Erro sintático: falta do FINDEL na linha",
+              "Erro sintático: falta do FINDEL na linha " +
               str(self.tokenAtual().linha)
             )
         else:
@@ -241,12 +253,12 @@ class Parser:
 
       else:
         raise Exception(
-            "Erro sintático: falta do parêntese direito na linha",
+            "Erro sintático: falta do parêntese direito na linha " +
             str(self.tokenAtual().linha)
         )
     else:
       raise Exception(
-          "Erro sintático: falta do parêntese esquerdo na linha",
+          "Erro sintático: falta do parêntese esquerdo na linha " +
           str(self.tokenAtual().linha)
       )
   
@@ -279,7 +291,7 @@ class Parser:
               )
           else:
             raise Exception(
-              "Erro sintático: falta do FINDEL na linha",
+              "Erro sintático: falta do FINDEL na linha " +
               str(self.tokenAtual().linha)
             )
         else:
@@ -290,12 +302,12 @@ class Parser:
 
       else:
         raise Exception(
-            "Erro sintático: falta do parêntese direito na linha",
+            "Erro sintático: falta do parêntese direito na linha " + 
             str(self.tokenAtual().linha)
         )
     else:
       raise Exception(
-          "Erro sintático: falta do parêntese esquerdo na linha",
+          "Erro sintático: falta do parêntese esquerdo na linha " +
           str(self.tokenAtual().linha)
       )
 
@@ -324,7 +336,7 @@ class Parser:
         )      
     else:
       raise Exception(
-          "Erro sintático: falta do INIDEL ou bloco vazio na linha",
+          "Erro sintático: falta do INIDEL ou bloco vazio na linha " +
           str(self.tokenAtual().linha)
       )
       
@@ -421,12 +433,12 @@ class Parser:
         self.indexToken += 1
       else:
         raise Exception(
-          "Erro sintático: falta do parêntese direito na linha",
+          "Erro sintático: falta do parêntese direito na linha "+
           str(self.tokenAtual().linha)
         )
     else:
       raise Exception(
-          "Erro sintático: falta do parêntese esquerdo na linha",
+          "Erro sintático: falta do parêntese esquerdo na linha "+
           str(self.tokenAtual().linha)
       )
 
@@ -440,7 +452,7 @@ class Parser:
       return self.tokenAtual().lexema
     else:
       raise Exception(
-        "Erro sintático: uso incorreto dos parâmetros na linha",
+        "Erro sintático: uso incorreto dos parâmetros na linha " +
         str(self.tokenAtual().linha)
       )
   
