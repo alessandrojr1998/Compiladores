@@ -28,7 +28,7 @@ A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)
 <procedure-calling>: <denomination> ({<argument>}| ε) 
 
 5. Comando de desvio condicional (if e else) 
-<if-statement>: if ( <boolean-expression> ) <ini-del> <statement> <fin-del> [ { else if ( <boolean-expression> ) <ini-del> <statement><fin-del>) | ε } else <ini-del> <statement> <fin-del> ] 
+<if-statement>: if ( <boolean-expression> ) <ini-del> <statement> <fin-del> [ else <ini-del> <statement> <fin-del> ] 
 
 6. Comando de laço (while) 
 <iteration-statement>: while ( <boolean-expression> ) <ini-del> <statement> <fin-del>endwhile 
