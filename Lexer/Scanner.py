@@ -116,7 +116,7 @@ class Scanner:
                     )
                 )
 
-            # Separador
+            # Vírgula
             elif char == ",": 
                 self.tokens.append(
                     Token("COMMA", self.programa[self.inicio : self.atual], self.linha)

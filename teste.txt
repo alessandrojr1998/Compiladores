@@ -2,7 +2,7 @@ main{
 
   boolean success := true
 
-  if(success == true){
+  if(success != true){
     abdullah(success)  
   }endif
   else{
