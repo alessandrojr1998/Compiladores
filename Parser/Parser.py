@@ -18,6 +18,9 @@ class Parser:
     escopoPai = self.indexEscopoAtual
     self.indexEscopoAtual += 1
     self.statementList()
+    
+    for linha in self.tabelaDeSimbolos:
+      print(linha)
     return
 
   def statementList(self):
@@ -193,15 +196,44 @@ class Parser:
           or self.tokenAtual().lexema == "false"
         ):
           tempEndVar.append(self.tokenAtual().lexema)
-          self.indexToken += 1            
+          self.indexToken += 1        
+          return    
         else:
           raise Exception(
               "Erro sintático. boolean atribuido errado na linha " +
             str(self.tokenAtual().linha)
           )
-    elif self.tokenAtual().tipo == "NUM":
+    if self.tokenAtual().tipo == "NUM":
       tempEndVar.append(self.tokenAtual().lexema)
       self.indexToken += 1      
+      if (
+          self.tokenAtual().tipo == "ADD"
+          or self.tokenAtual().tipo == "SUB"
+          or self.tokenAtual().tipo == "MULT"
+          or self.tokenAtual().tipo == "DIV"
+      ):
+          tempEndVar.append(self.tokenAtual().lexema)
+          self.callOpStatement(tempEndVar)
+          return
+      else:
+          return
+    if self.tokenAtual().tipo == "ID":
+      tempEndVar.append(self.tokenAtual().lexema)
+      self.indexToken += 1
+      # <call_op>
+      if (
+          self.tokenAtual().tipo == "ADD"
+          or self.tokenAtual().tipo == "SUB"
+          or self.tokenAtual().tipo == "MULT"
+          or self.tokenAtual().tipo == "DIV"
+      ):
+        print("ashui", self.tokenAtual().lexema)
+        tempEndVar.append(self.tokenAtual().lexema)
+        self.callOpStatement(tempEndVar)
+        return
+      else:
+          return    
+
     else:
       raise Exception(
         "Erro sintático: atribuição de variavel errada na linha " +
@@ -528,19 +560,21 @@ class Parser:
         str(self.tokenAtual().linha)
       )
   
-  def callOpStatement(self):
+  def callOpStatement(self, tempEndVar):
     self.indexToken += 1
     if self.tokenAtual().tipo == "ID" or self.tokenAtual().tipo == "NUM":
-        self.indexToken += 1
-        if (
-          self.tokenAtual().tipo == "ADD"
-          or self.tokenAtual().tipo == "SUB"
-          or self.tokenAtual().tipo == "MULT"
-          or self.tokenAtual().tipo == "DIV"
-        ):
-          self.callOpStatement()            
-        else:          
-          return
+      tempEndVar.append(self.tokenAtual().lexema)
+      self.indexToken += 1
+      if (
+        self.tokenAtual().tipo == "ADD"
+        or self.tokenAtual().tipo == "SUB"
+        or self.tokenAtual().tipo == "MULT"
+        or self.tokenAtual().tipo == "DIV"
+      ):
+        tempEndVar.append(self.tokenAtual().lexema)
+        self.callOpStatement(tempEndVar)            
+      else:          
+        return
     else:
         raise Exception(
           "Erro sintático: falta do ID na linha",
@@ -549,6 +583,7 @@ class Parser:
            
   def callVarStatement(self, temp):
     self.indexToken += 1
+    
     if self.tokenAtual().tipo == "ATB":  
         temp.append(self.tokenAtual().lexema)
         self.indexToken += 1
@@ -558,17 +593,22 @@ class Parser:
             or (self.tokenAtual().tipo == "ID")
         ):
           temp.append(self.tokenAtual().lexema)
-          self.indexToken += 1            
-        else:
-            raise Exception(
-                "Erro sintático: variável não atribuída na linha "
-                + str(self.tokenAtual().linha)
-            )
+          self.indexToken += 1   
+          if (
+            self.tokenAtual().tipo == "ADD"
+            or self.tokenAtual().tipo == "SUB"
+            or self.tokenAtual().tipo == "MULT"
+            or self.tokenAtual().tipo == "DIV"
+          ):
+            temp.append(self.tokenAtual().lexema)
+            self.callOpStatement(temp)          
+       
     else:
-        raise Exception(
-            "Erro sintático: símbolo de atribuição não encontrado na linha "
-            + str(self.tokenAtual().linha)
-        )
+      
+      raise Exception(
+          "Erro sintático: símbolo de atribuição não encontrado na linha "
+          + str(self.tokenAtual().linha)
+      )
 
   def declarationFuncStatement(self, temp):
     self.indexToken += 1
