@@ -1,7 +1,7 @@
 main{
-  int gols := 10*1
-  gols := a-10
-  gols := a/10
+  int gols1 := 10*1
+  gols2 := 11-b-10
+  gols3 := b/12
   boolean ganhou := true
 
   while(i <= 4){
