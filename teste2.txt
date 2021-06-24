@@ -1,33 +1,36 @@
 main{
   int gols1 := 10*1
-  gols2 := 11-b-10
-  gols3 := b/12
+  gols1 := 11-1-10
+  gols1 := 1/12
   boolean ganhou := true
+  ganhou := false
 
   while(i <= 4){
+    int gols13 := 10*1
     abdullah(3)
-    i := i+1
+    int i := 1
+    i := 0+1
     abdullah(true)
   }endwhile
 
   func chutar(){  
-    a := a+1      
+    int a := 10+1      
     return a 
   }endfunc 
 
   proc defender(int a, boolean b){    
     if(b == true){
-      a := a + 1
+      int as := 11 + 1
       abdullah(a)      
     }endif
 
     if(b >= true){
-      a := a + 1
+      a := 20 + 1
       abdullah(a)      
     }endif
 
     if(b <= true){
-      a := a + 1
+      a := 20 + 1
       abdullah(a)      
     }endif
     else{
