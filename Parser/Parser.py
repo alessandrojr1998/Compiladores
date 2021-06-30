@@ -881,8 +881,8 @@ class Parser:
     for linha in self.tabelaDeSimbolos:
       if(linha is not None):
         simbolo = linha[2]
-        if simbolo == "PROC":
-          self.declarationProcSemantico(linha)
+        #if simbolo == "PROC":
+        #  self.declarationProcSemantico(linha)
         '''
         if simbolo == "FUNC":
           self.declarationFuncSemantico(linha)
@@ -893,21 +893,79 @@ class Parser:
         if simbolo == "WHILE":
               self.expressionSemantico(linha)
        
-        if simbolo == "IF":
-              self.expressionSemantico(linha)
+        
         '''
+        #if simbolo == "INT":
+        # # verifica se simbolos de atribicao ja foram declarados
+        #  self.declaration_int_semantico(linha)
         if simbolo == "ID":
                 self.callVarSemantico(linha)
+        if simbolo == "IF":
+              self.expressionSemantico(linha)
+        
+        #  def 
+        #if simbolo == "INT" or simbolo == "BOOL":
+        #        # print("Análise da declaração", k + 1, " -> ", self.tabelaDeSimbolos[k])
+        #        self.declaration_var_semantico(self.tabelaDeSimbolos[k])
+
     
     print("Terminou")
+    
+  def declaration_int_semantico(self, simbolo):
+    for linha in self.tabelaDeSimbolos:
+      # Verificando se há duas var. com msm nome
+      if linha[3] == simbolo[3]:
+        # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
+        if linha[0] <= simbolo[0] and linha[1] <= simbolo[1]:
+          # verifica se as variaveis da atribuicao ja foram declaradas
+          var_atribuicao = self.variaveis_atribuicao_semantico(simbolo)
+        else:
+          raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+    return
   
+  def variaveis_atribuicao_semantico(self, simbolo):
+    #self.eh_inteiro(50)
+    #return
+   # print(self.eh_inteiro(10))
+   for i in range(0,len(simbolo[5]),2):
+      #print()
+      #print("aq")
+      #int(simbolo[5][i])
+    if(self.eh_inteiro(simbolo[5][i]) == False):
+      #print("algo")
+      self.verifica_escopo(simbolo, simbolo[5][i], i)
+      #print(isinstance(int(simbolo[5][i]), int))
+      #if(type(simbolo[5][i]) != int):
+      #  self.verifica_escopo(simbolo, simbolo[5][i], i)
+
+  def verifica_escopo(self, simbolo, variavel, id_variavel):
+    for linha in self.tabelaDeSimbolos:
+      # Verificando se há duas var. com msm nome
+      print( variavel)
+      if linha[3] == simbolo:
+        #print("passou")
+        # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
+        if linha[0] <= simbolo[0] and linha[1] <= simbolo[1]:
+           return
+        else:
+          raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+    #raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+     
+  def eh_inteiro(self, valor):
+    try: 
+        int(valor)
+        return True
+    except ValueError:
+        return False
+
+
   def callVarSemantico(self, simbolo):    
+    #print("entrou em id")
+    #print(simbolo)
     flag = False
     for linha in self.tabelaDeSimbolos:
       if(linha is not None):
-        if (
-          linha[2] == "INT"
-          or linha[2] == "BOOLEAN"):
+        if (linha[2] == "INT" or linha[2] == "BOOLEAN"):
         
           # Verificando se há duas var. com msm nome
           if linha[3] == simbolo[3]:
@@ -918,9 +976,13 @@ class Parser:
                 flag = True  # Flag para verificar se a chamada tá ok
                 # Chamada de método para verificar o tipo da variavel
                 # que está sendo atribuída
-                self.verificarTipoCallVar(
-                    linha, simbolo)
+                self.verificarTipoCallVar(linha, simbolo)
                 break
+          else:
+            raise Exception(
+                "Erro Semântico: variável não declarada na linha: "
+                + str(simbolo[1])
+            )
         '''
         # Buscar em parametros de PROC
         elif self.buscarParamsProc(simbolo) == True:
@@ -1013,18 +1075,15 @@ class Parser:
         return False
               
   def expressionSemantico(self, tabelaNoIndiceAtual):
-    buscaParam1 = self.buscarNaTabelaDeSimbolos(
-            tabelaNoIndiceAtual[3][0], 3)
-    buscaParam2 = self.buscarNaTabelaDeSimbolos(
-            tabelaNoIndiceAtual[3][2], 3)  
-    if (tabelaNoIndiceAtual[3][0]).isnumeric() and (
-            tabelaNoIndiceAtual[3][2]
-        ).isnumeric():
+    buscaParam1 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][0], 3)
+    buscaParam2 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][2], 3)  
+    #print(tabelaNoIndiceAtual[3][2].isalpha())
+    #print(tabelaNoIndiceAtual[3][2])
+    print(buscaParam2)
+    if (tabelaNoIndiceAtual[3][0]).isnumeric() and (tabelaNoIndiceAtual[3][2]).isnumeric():
       return True
       
-    elif (
-            tabelaNoIndiceAtual[3][0].isalpha(
-            ) and tabelaNoIndiceAtual[3][2].isalpha()):
+    elif (tabelaNoIndiceAtual[3][0].isalpha() and tabelaNoIndiceAtual[3][2].isalpha()):
       if buscaParam1 != None and buscaParam2 != None:
         if buscaParam2[2] == "INT" and buscaParam1[2] != "INT":
           raise Exception(
@@ -1122,6 +1181,7 @@ class Parser:
             return self.tabelaDeSimbolos[k]
       
   def declarationProcSemantico(self, tabelaNoIndiceAtual):
+
         # Analisar se variaveis e funções usados dentro do procedimento são passados no parametro ou se são declarados antes
         # print(tabelaNoIndiceAtual)
         # Quebrando no BOOL quando atualzia a variavel com outro valor
@@ -1154,7 +1214,6 @@ class Parser:
                                     cont += 1
                                     flag = True
                                     break
-                                    return True
 
                             elif self.tabelaDeSimbolos[k][2] == "BOOL":
                                 if (
@@ -1164,7 +1223,6 @@ class Parser:
                                     cont += 1
                                     flag = True
                                     break
-                                    return True
                                 else:
                                     raise Exception(
                                         "Erro Semântico: variável do tipo booleano não recebe booleano na linha: "
@@ -1244,3 +1302,4 @@ class Parser:
                 "Erro Semântico: variável não declarada na linha: "
                 + str(tabelaNoIndiceAtual[1])
             )  
+
