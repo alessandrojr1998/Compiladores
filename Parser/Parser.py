@@ -896,19 +896,13 @@ class Parser:
        
         
         '''
-        #if simbolo == "INT":
+        if simbolo == "INT":
         # # verifica se simbolos de atribicao ja foram declarados
-        #  self.declaration_int_semantico(linha)
+          self.declaration_int_semantico(linha)
         if simbolo == "ID":
-                self.callVarSemantico(linha)
+          self.callVarSemantico(linha)
         if simbolo == "IF":
-              self.expressionSemantico(linha)
-        
-        #  def 
-        #if simbolo == "INT" or simbolo == "BOOL":
-        #        # print("Análise da declaração", k + 1, " -> ", self.tabelaDeSimbolos[k])
-        #        self.declaration_var_semantico(self.tabelaDeSimbolos[k])
-
+          self.expressionSemantico(linha)
     
     print("Terminou")
     
@@ -920,6 +914,7 @@ class Parser:
         if linha[0] <= simbolo[0] and linha[1] <= simbolo[1]:
           # verifica se as variaveis da atribuicao ja foram declaradas
           var_atribuicao = self.variaveis_atribuicao_semantico(simbolo)
+          #print("deu certo")
         else:
           raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
     return
@@ -933,24 +928,27 @@ class Parser:
       #print("aq")
       #int(simbolo[5][i])
     if(self.eh_inteiro(simbolo[5][i]) == False):
-      #print("algo")
+      #print("eh letra")
+      #print(simbolo[5][i])
       self.verifica_escopo(simbolo, simbolo[5][i], i)
       #print(isinstance(int(simbolo[5][i]), int))
       #if(type(simbolo[5][i]) != int):
       #  self.verifica_escopo(simbolo, simbolo[5][i], i)
+    #return True
 
   def verifica_escopo(self, simbolo, variavel, id_variavel):
     for linha in self.tabelaDeSimbolos:
       # Verificando se há duas var. com msm nome
-      print( variavel)
-      if linha[3] == simbolo:
-        #print("passou")
+      #print( variavel)
+      if linha[3] == variavel:
+        #print(variavel)
         # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
-        if linha[0] <= simbolo[0] and linha[1] <= simbolo[1]:
+        if linha[0] <= simbolo[0] and linha[1] < simbolo[1]: #linha[1] verifica se a variavel nao ta sendo criada e atribuida na mesma linha
            return
         else:
           raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
-    #raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+      #print("variavel nao declarada" + str(simbolo))
+    raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
      
   def eh_inteiro(self, valor):
     try: 
