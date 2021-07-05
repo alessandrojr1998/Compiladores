@@ -13,8 +13,9 @@ main{
     abdullah(true)
   }endwhile
 
-  func chutar(){  
-    int a := 10+1      
+  func chutar(int y){  
+    int a := 10+1     
+    y := 1   
     return a 
   }endfunc 
 
