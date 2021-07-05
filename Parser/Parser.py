@@ -899,57 +899,87 @@ class Parser:
         if simbolo == "INT":
         # # verifica se simbolos de atribicao ja foram declarados
           self.declaration_int_semantico(linha)
+        if simbolo == "BOOLEAN":
+         # verifica se simbolos de atribicao ja foram declarados
+        # print("achou booleano")
+          self.declaration_boolean_semantico(linha)
         if simbolo == "ID":
-          self.callVarSemantico(linha)
-        if simbolo == "IF":
-          self.expressionSemantico(linha)
+          self.declaration_id_semantico(linha)
+      #    print("eh id")
+      #  if simbolo == "IF":
+      #    self.expressionSemantico(linha)
     
     print("Terminou")
     
-  def declaration_int_semantico(self, simbolo):
+  def declaration_boolean_semantico(self, simbolo):
     for linha in self.tabelaDeSimbolos:
       # Verificando se há duas var. com msm nome
       if linha[3] == simbolo[3]:
         # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
         if linha[0] <= simbolo[0] and linha[1] <= simbolo[1]:
           # verifica se as variaveis da atribuicao ja foram declaradas
-          var_atribuicao = self.variaveis_atribuicao_semantico(simbolo)
+          self.variaveis_atribuicao_semantico_boolean(simbolo)
           #print("deu certo")
         else:
           raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
     return
   
-  def variaveis_atribuicao_semantico(self, simbolo):
-    #self.eh_inteiro(50)
-    #return
-   # print(self.eh_inteiro(10))
-   for i in range(0,len(simbolo[5]),2):
-      #print()
-      #print("aq")
-      #int(simbolo[5][i])
-    if(self.eh_inteiro(simbolo[5][i]) == False):
-      #print("eh letra")
-      #print(simbolo[5][i])
-      self.verifica_escopo(simbolo, simbolo[5][i], i)
-      #print(isinstance(int(simbolo[5][i]), int))
-      #if(type(simbolo[5][i]) != int):
-      #  self.verifica_escopo(simbolo, simbolo[5][i], i)
-    #return True
+  def variaveis_atribuicao_semantico_boolean(self, simbolo):
+    if(len(simbolo[5]) == 1):
+      if(simbolo[5][0] != 'true' and simbolo[5][0] != 'false'):
+        #print(simbolo[5][0])
+        self.verifica_escopo_bool(simbolo, simbolo[5][0])
+    else:
+       raise Exception("Erro Semântico: expressão booleana inválida: " + str(simbolo[1]))
 
-  def verifica_escopo(self, simbolo, variavel, id_variavel):
+  def declaration_int_semantico(self, simbolo):
     for linha in self.tabelaDeSimbolos:
       # Verificando se há duas var. com msm nome
-      #print( variavel)
-      if linha[3] == variavel:
-        #print(variavel)
+      if linha[3] == simbolo[3] and linha[2] == simbolo[2]: #linha[2] == simbolo[2] certifica que nao to comparando declaracao duma variavel com a utilizacao dela (id)
         # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
-        if linha[0] <= simbolo[0] and linha[1] < simbolo[1]: #linha[1] verifica se a variavel nao ta sendo criada e atribuida na mesma linha
-           return
+        if linha[0] <= simbolo[0] and linha[1] <= simbolo[1]:
+          # verifica se as variaveis da atribuicao ja foram declaradas
+          self.variaveis_atribuicao_semantico(simbolo)
         else:
-          raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
-      #print("variavel nao declarada" + str(simbolo))
+          raise Exception("Erro Semântico:01 variável não declarada na linha: " + str(simbolo[1]))
+  
+  def variaveis_atribuicao_semantico(self, simbolo):
+    #percorre todos os atributos
+    for i in range(0,len(simbolo[5]),2):
+      #verifica se nao eh ineiro
+      if(self.eh_inteiro(simbolo[5][i]) == False):
+        #verifica escopo
+        self.verifica_escopo_int(simbolo, simbolo[5][i])
+
+  def verifica_escopo_int(self, simbolo, variavel):
+    for linha in self.tabelaDeSimbolos:
+      # Verificando se há duas var. com msm nome
+      if linha[3] == variavel:
+        #verifica tipo da variavel de atribuicao
+        if(linha[2] == "INT"):
+          # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
+          if linha[0] <= simbolo[0] and linha[1] < simbolo[1]: #linha[1] verifica se a variavel nao ta sendo criada e atribuida na mesma linha
+            return
+          else:
+            raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+        else:
+          raise Exception("Erro Semântico: variável de tipo BOOLEAN não pode ser atribuída a INT na linha: " + str(simbolo[1]))
     raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
-     
+
+  def verifica_escopo_bool(self, simbolo, variavel):
+    for linha in self.tabelaDeSimbolos:
+      # Verificando se há duas var. com msm nome
+      if linha[3] == variavel:
+        if(linha[2] == "BOOLEAN"):
+          if linha[0] <= simbolo[0] and linha[1] < simbolo[1]: #linha[1] verifica se a variavel nao ta sendo criada e atribuida na mesma linha
+           return
+          else:
+            raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+        else:
+          raise Exception("Erro Semântico: variável de tipo INT não pode ser atribuída a BOOLEAN na linha: " + str(simbolo[1]))
+        # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada  
+    raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+
   def eh_inteiro(self, valor):
     try: 
         int(valor)
@@ -957,49 +987,36 @@ class Parser:
     except ValueError:
         return False
 
-
-  def callVarSemantico(self, simbolo):    
-    #print("entrou em id")
-    #print(simbolo)
-    flag = False
-    for linha in self.tabelaDeSimbolos:
-      if(linha is not None):
-        if (linha[2] == "INT" or linha[2] == "BOOLEAN"):
-        
+  def verificar_se_declarado(self, simbolo):
+      for linha in self.tabelaDeSimbolos:
           # Verificando se há duas var. com msm nome
-          if linha[3] == simbolo[3]:
-            # Se houver, verifica se a variavel está visivel no
-            # escopo da qual foi chamada
-            if linha[0] <= simbolo[0]:
-              if linha[1] <= simbolo[1]:
-                flag = True  # Flag para verificar se a chamada tá ok
-                # Chamada de método para verificar o tipo da variavel
-                # que está sendo atribuída
-                self.verificarTipoCallVar(linha, simbolo)
-                break
-          else:
-            raise Exception(
-                "Erro Semântico: variável não declarada na linha: "
-                + str(simbolo[1])
-            )
-        '''
-        # Buscar em parametros de PROC
-        elif self.buscarParamsProc(simbolo) == True:
-          flag = True
-          break
+          if linha[3] == simbolo[3] and linha[2] != simbolo[2]:
+            return True
+      return False
 
-        # Buscar em parametros de FUNC
-        elif self.buscarParamsFunc(simbolo, 3) == True:
-          flag = True
-          break
-        '''
-    # Se der errado a declaração:
-    if flag == False:
-        raise Exception(
-            "Erro Semântico: variável não declarada na linha: " +
-            str(simbolo[1])
-        )
+  def declaration_id_semantico(self, simbolo):
+    for linha in self.tabelaDeSimbolos:
+      # Verificando se há duas var. com msm nome
+      if linha[3] == simbolo[3] and linha[2] == simbolo[2]: #linha[2] == simbolo[2] certifica que nao to comparando declaracao duma variavel com a utilizacao dela (id)
+        #verifica se ja declarado
+        if(self.verificar_se_declarado(simbolo)):
+        #varre de novo pra saber se a declaracao eh valida
+          for linha2 in self.tabelaDeSimbolos:
+            # Verificando se há duas var. com msm nome
+            if linha2[3] == simbolo[3] and linha2[2] != simbolo[2]:
+              # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
+              if linha2[0] >= simbolo[0] and linha2[1] < simbolo[1]:
+                #verificando os atributos do id
+                if(linha2[2] == "INT"):
+                  #self.variaveis_atribuicao_semantico(linha2)
+                #  print(linha2)
+                  return
+              else:
+                raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+        else:
+          raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
   
+    
   # TODO: Faltam expressões e funções
   def verificarTipoCallVar(self, simboloDeclaradoNaTabela, simbolo):
 
