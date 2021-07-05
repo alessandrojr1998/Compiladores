@@ -476,6 +476,7 @@ class Parser:
       tempExpression = []
       tempExpression = self.booleanExpression(tempExpression)   
       temp.append(tempExpression)   
+      print("EXPRESS", tempExpression)
       
       if self.tokenAtual().tipo == "PRIGHT":
         self.indexToken += 1      
@@ -705,26 +706,31 @@ class Parser:
   def paramsStatement(self, tempParenteses, temp):
     
     if self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN":
-        tempParentesesParamAtual = []
+        tempParentesesParamAtual = []      
+
         tempParentesesParamAtual.append(self.indexEscopoAtual + 1)
+        tempParentesesParamAtual.append(self.tokenAtual().linha)
         tempParentesesParamAtual.append(self.tokenAtual().tipo)
         self.indexToken += 1
         if self.tokenAtual().tipo == "ID":
             tempParentesesParamAtual.append(self.tokenAtual().lexema)
             tempParenteses.append(tempParentesesParamAtual)
             self.indexToken += 1
+            print("ATUAL", tempParentesesParamAtual)
+            self.tabelaDeSimbolos.append(tempParentesesParamAtual)
             if self.tokenAtual().tipo == "COMMA":
                 self.indexToken += 1
                 self.paramsStatement(tempParenteses, temp)
                 tempParenteses.pop()
-                temp.append(tempParenteses)
-            elif (
-              not(self.tokenAtual().tipo == "PRIGHT")
-            ):
-                raise Exception(
+                temp.append(tempParenteses)        
+                print("PARENTESEEE", tempParenteses)         
+            elif(self.tokenAtual().tipo == "PRIGHT"):
+              self.tabelaDeSimbolos.append(temp)   
+            else:
+              raise Exception(
                     "Erro sintático: falta vírgula na linha "
                     + str(self.tokenAtual().linha)
-                )           
+                )    
         else:
             raise Exception(
                 "Erro sintatico: é necessário informar alguma váriavel na linha "
@@ -880,6 +886,8 @@ class Parser:
   ''' Semântica '''
   def checkSemantica(self):
     for linha in self.tabelaDeSimbolos:
+      print("---------------------")
+      print(linha)
       if(linha is not None):
         simbolo = linha[2]
         #if simbolo == "PROC":
@@ -920,51 +928,58 @@ class Parser:
           # verifica se as variaveis da atribuicao ja foram declaradas
           self.variaveis_atribuicao_semantico_boolean(simbolo)  
           return
-        else:
+        elif linha[0] == simbolo[0] and len(linha > 4):  
           raise Exception("Erro Semântico: 03variável não declarada na linha: " + str(simbolo[1]))
     return
   
   def variaveis_atribuicao_semantico_boolean(self, simbolo):
-    if(len(simbolo[5]) == 1):
-      if(simbolo[5][0] != 'true' and simbolo[5][0] != 'false'):
-        self.verifica_escopo_bool(simbolo, simbolo[5][0])
-    else:
-       raise Exception("Erro Semântico: expressão booleana inválida: " + str(simbolo[1]))
+    if(len(simbolo) > 4):
+      if(len(simbolo[5]) == 1):
+        if(simbolo[5][0] != 'true' and simbolo[5][0] != 'false'):
+          self.verifica_escopo_bool(simbolo, simbolo[5][0])
+      else:
+        raise Exception("Erro Semântico: expressão booleana inválida: " + str(simbolo[1]))
 
   def declaration_int_semantico(self, simbolo):
     for linha in self.tabelaDeSimbolos:
       # Verificando se há duas var. com msm nome
-      if linha[3] == simbolo[3] and linha[2] == simbolo[2]: #linha[2] == simbolo[2] certifica que nao to comparando declaracao duma variavel com a utilizacao dela (id)
+      if linha[3] == simbolo[3] and linha[2] == simbolo[2]: #linha[2] == simbolo[2] certifica que nao to comparando declaracao de uma variavel com a utilizacao dela (id)
         # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
         if linha[0] <= simbolo[0] and linha[1] <= simbolo[1]:
           # verifica se as variaveis da atribuicao ja foram declaradas
           self.variaveis_atribuicao_semantico(simbolo)
-        else:
-          raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+        elif linha[0] == simbolo[0] and len(linha > 4):    
+          raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))        
   
   def variaveis_atribuicao_semantico(self, simbolo):
-    #percorre todos os atributos
-    for i in range(0,len(simbolo[5]),2):
-      #print(simbolo[5][i])
-      #verifica se nao eh ineiro
-      if(self.eh_inteiro(simbolo[5][i]) == False):
-        #verifica escopo
-        self.verifica_escopo_int(simbolo, simbolo[5][i])
+    #percorre todos os atributos    
+    if(len(simbolo) > 4):
+      for i in range(0,len(simbolo[5]),2):
+        #print(simbolo[5][i])
+        #verifica se nao eh ineiro
+        if(self.eh_inteiro(simbolo[5][i]) == False):
+          #verifica escopo
+          self.verifica_escopo_int(simbolo, simbolo[5][i])
 
   def verifica_escopo_int(self, simbolo, variavel):
+    
     for linha in self.tabelaDeSimbolos:
       # Verificando se há duas var. com msm nome
       if linha[3] == variavel:
         #verifica tipo da variavel de atribuicao
         if(linha[2] == "INT"):
+          
           # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
           if linha[0] <= simbolo[0] and linha[1] < simbolo[1]: #linha[1] verifica se a variavel nao ta sendo criada e atribuida na mesma linha
+           
             return
           else:
             raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
         else:
           raise Exception("Erro Semântico: variável de tipo BOOLEAN não pode ser atribuída a INT na linha: " + str(simbolo[1]))
-    raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+    print(simbolo)
+    print(variavel)
+    raise Exception("Erro Semântico: variável não declaraaaaada na linha: " + str(simbolo[1]))
 
   def verifica_escopo_bool(self, simbolo, variavel):
     for linha in self.tabelaDeSimbolos:
