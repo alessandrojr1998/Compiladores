@@ -901,10 +901,9 @@ class Parser:
           self.declaration_int_semantico(linha)
         if simbolo == "BOOLEAN":
          # verifica se simbolos de atribicao ja foram declarados
-        # print("achou booleano")
           self.declaration_boolean_semantico(linha)
-        if simbolo == "ID":
-          self.declaration_id_semantico(linha)
+      #  if simbolo == "ID":
+        #  self.declaration_id_semantico(linha)
       #    print("eh id")
       #  if simbolo == "IF":
       #    self.expressionSemantico(linha)
@@ -916,18 +915,18 @@ class Parser:
       # Verificando se há duas var. com msm nome
       if linha[3] == simbolo[3]:
         # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
+        
         if linha[0] <= simbolo[0] and linha[1] <= simbolo[1]:
           # verifica se as variaveis da atribuicao ja foram declaradas
-          self.variaveis_atribuicao_semantico_boolean(simbolo)
-          #print("deu certo")
+          self.variaveis_atribuicao_semantico_boolean(simbolo)  
+          return
         else:
-          raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+          raise Exception("Erro Semântico: 03variável não declarada na linha: " + str(simbolo[1]))
     return
   
   def variaveis_atribuicao_semantico_boolean(self, simbolo):
     if(len(simbolo[5]) == 1):
       if(simbolo[5][0] != 'true' and simbolo[5][0] != 'false'):
-        #print(simbolo[5][0])
         self.verifica_escopo_bool(simbolo, simbolo[5][0])
     else:
        raise Exception("Erro Semântico: expressão booleana inválida: " + str(simbolo[1]))
@@ -941,11 +940,12 @@ class Parser:
           # verifica se as variaveis da atribuicao ja foram declaradas
           self.variaveis_atribuicao_semantico(simbolo)
         else:
-          raise Exception("Erro Semântico:01 variável não declarada na linha: " + str(simbolo[1]))
+          raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
   
   def variaveis_atribuicao_semantico(self, simbolo):
     #percorre todos os atributos
     for i in range(0,len(simbolo[5]),2):
+      #print(simbolo[5][i])
       #verifica se nao eh ineiro
       if(self.eh_inteiro(simbolo[5][i]) == False):
         #verifica escopo
@@ -1008,9 +1008,10 @@ class Parser:
               if linha2[0] >= simbolo[0] and linha2[1] < simbolo[1]:
                 #verificando os atributos do id
                 if(linha2[2] == "INT"):
-                  #self.variaveis_atribuicao_semantico(linha2)
-                #  print(linha2)
-                  return
+                  self.variaveis_atribuicao_semantico(simbolo)
+                elif(linha2[2] == "BOOLEAN"):
+                  print("aq")
+                  self.variaveis_atribuicao_semantico_boolean(simbolo)
               else:
                 raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
         else:
