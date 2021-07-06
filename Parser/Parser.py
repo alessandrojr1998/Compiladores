@@ -148,9 +148,14 @@ class Parser:
           "Erro sintático: declaração de procedimento não permitida no bloco do if/else na linha " +
           str(self.tokenAtual().linha)
           )
-    if self.tokenAtual().tipo == "PROCCALL":      
-      self.callProc()
-      return
+    if self.tokenAtual().tipo == "PROCCALL":   
+      temp = []
+      temp.append(self.indexEscopoAtual)
+      temp.append(self.tokenAtual().linha)
+      temp.append(self.tokenAtual().tipo)
+      self.callProc(temp)
+      self.tabelaDeSimbolos.append(temp)
+      return temp
     
     if self.tokenAtual().tipo == "BREAK" or self.tokenAtual().tipo == "CONTINUE":
       if isWhile:
@@ -476,7 +481,6 @@ class Parser:
       tempExpression = []
       tempExpression = self.booleanExpression(tempExpression)   
       temp.append(tempExpression)   
-      print("EXPRESS", tempExpression)
       
       if self.tokenAtual().tipo == "PRIGHT":
         self.indexToken += 1      
@@ -706,8 +710,7 @@ class Parser:
   def paramsStatement(self, tempParenteses, temp):
     
     if self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN":
-        tempParentesesParamAtual = []      
-
+        tempParentesesParamAtual = []     
         tempParentesesParamAtual.append(self.indexEscopoAtual + 1)
         tempParentesesParamAtual.append(self.tokenAtual().linha)
         tempParentesesParamAtual.append(self.tokenAtual().tipo)
@@ -716,15 +719,12 @@ class Parser:
             tempParentesesParamAtual.append(self.tokenAtual().lexema)
             tempParenteses.append(tempParentesesParamAtual)
             self.indexToken += 1
-            print("ATUAL", tempParentesesParamAtual)
             self.tabelaDeSimbolos.append(tempParentesesParamAtual)
             if self.tokenAtual().tipo == "COMMA":
                 self.indexToken += 1
                 self.paramsStatement(tempParenteses, temp)
-                tempParenteses.pop()
-                temp.append(tempParenteses)        
-                print("PARENTESEEE", tempParenteses)         
             elif(self.tokenAtual().tipo == "PRIGHT"):
+              temp.append(tempParenteses) 
               self.tabelaDeSimbolos.append(temp)   
             else:
               raise Exception(
@@ -744,15 +744,15 @@ class Parser:
         
   def argumentStatement(self, tempParams, tempEndVar):
     
-    if self.tokenAtual().tipo == "ID" or self.tokenAtual().tipo == "LOGIC" or self.tokenAtual().tipo == "NUM":
+   
+    if self.tokenAtual().tipo == "ID" or self.tokenAtual().tipo == "LOGIC" or self.tokenAtual().tipo == "NUM":       
         tempParams.append(self.tokenAtual().lexema)
         self.indexToken += 1
         if self.tokenAtual().tipo == "COMMA":
           self.indexToken += 1
           tempParams.append(self.argumentStatement(tempParams, tempEndVar))
           tempParams.pop()
-            
-        if (
+        elif (
           self.tokenAtual().tipo == "PRIGHT"
         ):
           self.indexToken += 1
@@ -860,15 +860,18 @@ class Parser:
         + str(self.tokenAtual().linha)
       ) 
       
-  def callProc(self):
+  def callProc(self, tempEndVar):
     self.indexToken += 1
     if self.tokenAtual().tipo == "ID":
+      tempEndVar.append(self.tokenAtual().lexema)
       self.indexToken += 1
       if self.tokenAtual().tipo == "PLEFT":
         self.indexToken += 1
+        tempParams = []
         if not(self.tokenAtual().tipo == "PRIGHT"):        
-          self.argumentStatement()   
+          self.argumentStatement(tempParams, tempEndVar)   
         else: 
+          tempEndVar.append(tempParams)
           self.indexToken += 1  
             
       else:
@@ -886,35 +889,34 @@ class Parser:
   ''' Semântica '''
   def checkSemantica(self):
     for linha in self.tabelaDeSimbolos:
-      print("---------------------")
-      print(linha)
       if(linha is not None):
         simbolo = linha[2]
         #if simbolo == "PROC":
         #  self.declarationProcSemantico(linha)
-        '''
+        #         
+        if simbolo == "PROCCALL":
+          self.callProcSemantico(linha, 4, linha[1])
         if simbolo == "FUNC":
-          self.declarationFuncSemantico(linha)
-        
-       
+          self.declarationFuncSemantico(linha)       
        
        
         if simbolo == "WHILE":
-              self.expressionSemantico(linha)
-       
-        
-        '''
+              self.expressionSemantico(linha)    
+
         if simbolo == "INT":
         # # verifica se simbolos de atribicao ja foram declarados
           self.declaration_int_semantico(linha)
+
         if simbolo == "BOOLEAN":
          # verifica se simbolos de atribicao ja foram declarados
           self.declaration_boolean_semantico(linha)
+
       #  if simbolo == "ID":
         #  self.declaration_id_semantico(linha)
       #    print("eh id")
-      #  if simbolo == "IF":
-      #    self.expressionSemantico(linha)
+
+        if simbolo == "IF":
+          self.expressionSemantico(linha)
     
     print("Terminou")
     
@@ -977,9 +979,8 @@ class Parser:
             raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
         else:
           raise Exception("Erro Semântico: variável de tipo BOOLEAN não pode ser atribuída a INT na linha: " + str(simbolo[1]))
-    print(simbolo)
-    print(variavel)
-    raise Exception("Erro Semântico: variável não declaraaaaada na linha: " + str(simbolo[1]))
+
+    raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
 
   def verifica_escopo_bool(self, simbolo, variavel):
     for linha in self.tabelaDeSimbolos:
@@ -1111,7 +1112,6 @@ class Parser:
     buscaParam2 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][2], 3)  
     #print(tabelaNoIndiceAtual[3][2].isalpha())
     #print(tabelaNoIndiceAtual[3][2])
-    print(buscaParam2)
     if (tabelaNoIndiceAtual[3][0]).isnumeric() and (tabelaNoIndiceAtual[3][2]).isnumeric():
       return True
       
@@ -1211,6 +1211,119 @@ class Parser:
       if(self.tabelaDeSimbolos[k] is not None):
         if self.tabelaDeSimbolos[k][indice] == simbolo:
             return self.tabelaDeSimbolos[k]
+
+  def callProcSemantico(self, tabelaNoIndiceAtual, m, linha):
+    flag = False
+    for k in range(len(self.tabelaDeSimbolos)):
+      if self.tabelaDeSimbolos[k][2] == "PROC":
+        if self.tabelaDeSimbolos[k][3] == tabelaNoIndiceAtual[3]:
+          if self.tabelaDeSimbolos[k][0] <= tabelaNoIndiceAtual[0]:
+            flag = True
+            self.verificarParams(
+                self.tabelaDeSimbolos[k],
+                tabelaNoIndiceAtual,
+                4,
+                "PROC",
+                m,
+                linha,
+                tabelaNoIndiceAtual[0],
+            )
+            break
+
+    # Se der errado a declaração:
+    if flag == False:
+        raise Exception(
+            "Erro Semântico: procedimento não declarado na linha: "
+            + str(tabelaNoIndiceAtual[1])
+          )
+  def verificarParams(
+        self, simboloDeclaradoNaTabela, simbolo, n, tipo, m, linha, escopo
+    ):    
+    flag = 0
+    # Verifica se a quantidade de parametros da chamada corresponde com a declaração
+    if len(simboloDeclaradoNaTabela[n]) == len(simbolo[m]):
+        # Se os parâmetros não for vazio:
+      if len(simbolo[m]) > 0:
+        # P/ cada parâmetro
+        for k in range(len(simbolo[m])):
+            # Leitura da declaração do parametro atual
+            for i in range(len(self.tabelaDeSimbolos)):
+                # Busca na tabela de simbolos a variavel passada na chamada da função
+                if self.tabelaDeSimbolos[i][3] == simbolo[m][k]:
+                    # Verifica se foi declarado em escopo/linhas anteriores
+                    if (self.tabelaDeSimbolos[i][0] <= escopo) and (
+                        self.tabelaDeSimbolos[i][1] <= linha
+                    ):
+                        # Só incrementa quando acha declaração de váriavel
+                        if (
+                            self.tabelaDeSimbolos[i][2] == "INT"
+                            or self.tabelaDeSimbolos[i][2] == "BOOLEAN"
+                        ):
+                            flag += 1
+                            self.comparaTipoChamadaComDeclaracao(
+                                self.tabelaDeSimbolos[i], simbolo, tipo, n
+                            )
+                        break
+
+      # Se não tiver params
+      else:
+          return True
+    else:
+        raise Exception(
+            "Erro Semântico: quantidade de parâmetros inválido na linha: "
+            + str(linha)
+        )
+    if flag != len(simboloDeclaradoNaTabela[n]):
+        raise Exception(
+            "Erro Semântico: variável do parâmetro não declarada na linha: "
+            + str(linha)
+        )
+    else:
+        return True
+
+  def comparaTipoChamadaComDeclaracao(
+        self, declaracaoVarNaTabela, callFuncTabela, tipo, n
+    ):
+    declaracaoFuncNaTabela = self.buscarNaTabelaDeSimbolos(tipo, 2)
+    flag = False
+    for k in range(len(declaracaoFuncNaTabela[n])):
+      if declaracaoFuncNaTabela[n][k][2] == declaracaoVarNaTabela[2]:
+        flag = True
+        break
+
+      # Caso ele encontre um ID ao inves da declaração direta,
+      # deve buscar pra saber se o tipo corresponde
+      elif declaracaoVarNaTabela[2] == "ID":
+          tipoDeclaracaoDoID = self.buscarNaTabelaDeSimbolos("ID", 2)
+          varDeclarada = self.buscarNaTabelaDeSimbolos(
+              tipoDeclaracaoDoID[3], 3)
+          if declaracaoFuncNaTabela[n][k][1] == varDeclarada[2]:
+              flag = True
+              break
+
+    if flag == False:
+      raise Exception(
+          "Erro Semântico: tipo do parâmetro inválido na linha: "
+          + str(callFuncTabela[1])
+      )
+
+  def declarationFuncSemantico(self, tabelaNoIndiceAtual):
+    if tabelaNoIndiceAtual[3] == "INT":
+      if not tabelaNoIndiceAtual[7][2][0].isnumeric():
+          raise Exception(
+              "Erro Semântico: O retorno espera um inteiro na linha: "
+              + str(tabelaNoIndiceAtual[1])
+          )
+
+    if tabelaNoIndiceAtual[3] == "BOOL":
+      if (
+          tabelaNoIndiceAtual[7][2][0] == "true"
+          or tabelaNoIndiceAtual[7][2][0] == "false"
+      ) is False:
+          raise Exception(
+              "Erro Semântico: O retorno espera um boolean na linha: "
+              + str(tabelaNoIndiceAtual[1])
+          )
       
   def declarationProcSemantico(self, tabelaNoIndiceAtual):
 
@@ -1249,8 +1362,8 @@ class Parser:
 
                             elif self.tabelaDeSimbolos[k][2] == "BOOL":
                                 if (
-                                    tabelaNoIndiceAtual[5][i][5] == "True"
-                                    or tabelaNoIndiceAtual[5][i][5] == "False"
+                                    tabelaNoIndiceAtual[5][i][5] == "true"
+                                    or tabelaNoIndiceAtual[5][i][5] == "false"
                                 ):
                                     cont += 1
                                     flag = True
@@ -1278,17 +1391,15 @@ class Parser:
                                             cont += 1
                                             flag = True
                                             break
-                                            return True
 
                                     if tabelaNoIndiceAtual[4][n][1] == "BOOL":
                                         if (
-                                            tabelaNoIndiceAtual[5][i][5] == "True"
-                                            or tabelaNoIndiceAtual[5][i][5] == "False"
+                                            tabelaNoIndiceAtual[5][i][5] == "true"
+                                            or tabelaNoIndiceAtual[5][i][5] == "false"
                                         ):
                                             cont += 1
                                             flag = True
                                             break
-                                            return True
                                         else:
                                             raise Exception(
                                                 "Erro Semântico: variável do tipo booleano não recebe booleano na linha: "
@@ -1311,17 +1422,15 @@ class Parser:
                                         cont += 1
                                         flag = True
                                         break
-                                        return True
 
                                 if tabelaNoIndiceAtual[4][n][1] == "BOOL":
                                     if (
-                                        tabelaNoIndiceAtual[5][i][5] == "True"
-                                        or tabelaNoIndiceAtual[5][i][5] == "False"
+                                        tabelaNoIndiceAtual[5][i][5] == "true"
+                                        or tabelaNoIndiceAtual[5][i][5] == "false"
                                     ):
                                         cont += 1
                                         flag = True
                                         break
-                                        return True
                                     else:
                                         raise Exception(
                                             "Erro Semântico: variável do tipo booleano não recebe booleano na linha: "
