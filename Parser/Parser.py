@@ -1122,7 +1122,7 @@ class Parser:
             "Erro Semântico: Não é possível comparar dois tipos diferentes na linha: "
             + str(tabelaNoIndiceAtual[1])) 
         
-        if buscaParam2[2] == "INT" and buscaParam1[2] != "INT":
+        if buscaParam2[2] != "INT" and buscaParam1[2] == "INT":
           raise Exception(
             "Erro Semântico: Não é possível comparar dois tipos diferentes na linha: "
             + str(tabelaNoIndiceAtual[1]))
