@@ -69,7 +69,7 @@ class Parser:
     else:
       raise Exception("Erro sintático na linha " + str(self.tokenAtual().linha))
   
-  def blockStatement(self, isWhile = False, isIf = False):  
+  def blockStatement(self, isWhile = False, isIf = False, isProc = False):  
     if self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN":    
       temp = []
       temp.append(self.indexEscopoAtual)
@@ -85,14 +85,14 @@ class Parser:
         temp.append(self.indexEscopoAtual)
         temp.append(self.tokenAtual().linha)
         temp.append(self.tokenAtual().tipo)
-        self.ifStatementWhile(temp)
+        self.ifStatementWhile(temp, isProc)
         return temp
       else:
         temp = []
         temp.append(self.indexEscopoAtual)
         temp.append(self.tokenAtual().linha)
         temp.append(self.tokenAtual().tipo)
-        self.ifStatement(temp)
+        self.ifStatement(temp, isProc)
         return temp
     
     if self.tokenAtual().tipo == "PRINT":
@@ -108,7 +108,7 @@ class Parser:
       temp.append(self.indexEscopoAtual)
       temp.append(self.tokenAtual().linha)
       temp.append(self.tokenAtual().tipo)
-      self.whileStatement(temp)
+      self.whileStatement(temp, isProc)
       return 
     
     if self.tokenAtual().tipo == "ID":
@@ -304,7 +304,7 @@ class Parser:
         str(self.tokenAtual().linha)
       )
 
-  def ifStatement(self, temp):
+  def ifStatement(self, temp, isProc):
     self.indexToken += 1
     if self.tokenAtual().tipo == "PLEFT":
       self.indexToken += 1
@@ -322,6 +322,11 @@ class Parser:
           
           while(self.tokenAtual().tipo != "FINDEL"
               and self.tokenLookAhead().tipo != "ENDIF"):
+            if(self.tokenAtual().tipo == "RETURN" and isProc):
+              raise Exception(
+                "Erro sintático: return declarado dentro de um procedimento na linha "
+                + str(self.tokenAtual().linha)
+              ) 
             tempBlock.append(self.blockStatement(isIf=True))        
             
           temp.append(tempBlock)  
@@ -374,7 +379,7 @@ class Parser:
           str(self.tokenAtual().linha)
       )
   
-  def ifStatementWhile(self, temp): 
+  def ifStatementWhile(self, temp, isProc): 
     self.indexToken += 1
     if self.tokenAtual().tipo == "PLEFT":
       self.indexToken += 1
@@ -392,6 +397,11 @@ class Parser:
           
           while(self.tokenAtual().tipo != "FINDEL"
             and self.tokenLookAhead().tipo != "ENDIF"):
+            if(self.tokenAtual().tipo == "RETURN" and isProc):
+              raise Exception(
+                "Erro sintático: return declarado dentro de um procedimento na linha "
+                + str(self.tokenAtual().linha)
+              ) 
             tempBlock.append(self.blockStatement(True, True))
           
           temp.append(tempBlock)          
@@ -474,7 +484,7 @@ class Parser:
           str(self.tokenAtual().linha)
       )     
     
-  def whileStatement(self, temp):
+  def whileStatement(self, temp, isProc):
     self.indexToken += 1
     if self.tokenAtual().tipo == "PLEFT":
       self.indexToken += 1
@@ -495,6 +505,11 @@ class Parser:
             self.tokenAtual().tipo != "FINDEL"
             and self.tokenLookAhead() != "ENDWHILE"
               ):
+              if(self.tokenAtual().tipo == "RETURN" and isProc):
+                raise Exception(
+                  "Erro sintático: return declarado dentro de um procedimento na linha "
+                  + str(self.tokenAtual().linha)
+                ) 
               tempBlock.append(self.blockStatement(isWhile=True))
             
             temp.append(tempBlock)
@@ -811,7 +826,12 @@ class Parser:
             self.indexToken += 1 
             tempBlock = []
             while self.tokenAtual().tipo != "FINDEL":
-              tempBlock.append(self.blockStatement())
+              if(self.tokenAtual().tipo == "RETURN"):
+                raise Exception(
+                  "Erro sintático: return declarado dentro de um procedimento na linha "
+                  + str(self.tokenAtual().linha)
+                )                 
+              tempBlock.append(self.blockStatement(isProc= True))
             temp.append(tempBlock)
             self.indexToken += 1
             
@@ -1165,7 +1185,7 @@ class Parser:
           "Erro Semântico: variavel não declarada na linha: "
           + str(tabelaNoIndiceAtual[1]))
      
-    elif tabelaNoIndiceAtual[3][0].isalpha() and tabelaNoIndiceAtual[3][2].isnumeric():
+    elif tabelaNoIndiceAtual[3][0].isalpha() and tabelaNoIndiceAtual[3][2].isnumeric():     
       if buscaParam1 != None:
         if buscaParam1[2] != "INT":
           raise Exception(
