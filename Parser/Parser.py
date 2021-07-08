@@ -19,9 +19,9 @@ class Parser:
     self.indexEscopoAtual += 1
     self.statementList()
     
-    for linha in self.tabelaDeSimbolos:
-       if(linha != None):
-        print(linha)
+    # for linha in self.tabelaDeSimbolos:
+    #    if(linha != None):
+    #     print(linha)
       
     print('\n')
     
@@ -109,7 +109,7 @@ class Parser:
       temp.append(self.tokenAtual().linha)
       temp.append(self.tokenAtual().tipo)
       self.whileStatement(temp, isProc)
-      return 
+      return temp
     
     if self.tokenAtual().tipo == "ID":
       temp = []
@@ -209,7 +209,7 @@ class Parser:
         ):
           tempEndVar.append(self.tokenAtual().lexema)
           self.indexToken += 1        
-          return    
+          return tempEndVar    
         else:
           raise Exception(
               "Erro sintático. boolean atribuido errado na linha " +
@@ -226,9 +226,9 @@ class Parser:
       ):
           tempEndVar.append(self.tokenAtual().lexema)
           self.callOpStatement(tempEndVar)
-          return
+          return tempEndVar
       else:
-          return
+          return tempEndVar
     if self.tokenAtual().tipo == "ID":
       tempEndVar.append(self.tokenAtual().lexema)
       self.indexToken += 1
@@ -241,9 +241,9 @@ class Parser:
       ):
         tempEndVar.append(self.tokenAtual().lexema)
         self.callOpStatement(tempEndVar)
-        return
+        return tempEndVar
       else:
-          return    
+          return tempEndVar  
 
     else:
       raise Exception(
@@ -252,14 +252,13 @@ class Parser:
       )
 
   def booleanExpression(self, tempExpression):
+    
     if self.tokenAtual().tipo == "ID" or self.tokenAtual().tipo == "NUM" or self.tokenAtual().tipo == "LOGIC":
       tempExpression.append(self.tokenAtual().lexema)
       if(self.tokenAtual().tipo == "LOGIC" and self.tokenAtual().lexema != 'false'):
         self.indexToken += 1
-        tempExpression.append(self.tokenAtual().lexema)
         if self.tokenAtual().tipo == "PRIGHT":
-          self.indexToken += 1
-          return 
+          return tempExpression
         else:
           raise Exception(
             "Erro sintático: falta do parêntese direito na linha "+
@@ -270,6 +269,10 @@ class Parser:
           "Erro sintático: a condição do while não pode ser false, na linha "+
           str(self.tokenAtual().linha)
       )
+
+      if(self.tokenAtual().tipo == "ID" and self.tokenLookAhead().tipo == "PRIGHT"):
+        self.indexToken += 1
+        return tempExpression
           
       self.indexToken += 1 
           
@@ -311,7 +314,6 @@ class Parser:
       tempExpression = []
       tempExpression = self.booleanExpression(tempExpression)
       temp.append(tempExpression)
-
       if self.tokenAtual().tipo == "PRIGHT":
         lookAhead = self.tokenLookAhead()
         self.indexToken += 1
@@ -600,7 +602,7 @@ class Parser:
         tempEndVar.append(self.tokenAtual().lexema)
         self.callOpStatement(tempEndVar)            
       else:          
-        return
+        return tempEndVar
     else:
         raise Exception(
           "Erro sintático: falta do ID na linha",
@@ -921,7 +923,7 @@ class Parser:
        
        
         if simbolo == "WHILE":
-              self.expressionSemantico(linha)    
+          self.expressionSemantico(linha)  
 
         if simbolo == "INT":
         # # verifica se simbolos de atribicao ja foram declarados
@@ -1128,10 +1130,15 @@ class Parser:
         return False
               
   def expressionSemantico(self, tabelaNoIndiceAtual):
+    if(tabelaNoIndiceAtual[3][0] == "true" or tabelaNoIndiceAtual[3][0] == "false"):
+      return True
     buscaParam1 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][0], 3)
+    
+    if(buscaParam1[2] == "BOOLEAN" and len(tabelaNoIndiceAtual[3]) == 1):
+      return True
+
     buscaParam2 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][2], 3)  
-    #print(tabelaNoIndiceAtual[3][2].isalpha())
-    #print(tabelaNoIndiceAtual[3][2])
+    
     if (tabelaNoIndiceAtual[3][0]).isnumeric() and (tabelaNoIndiceAtual[3][2]).isnumeric():
       return True
       
@@ -1193,7 +1200,7 @@ class Parser:
             + str(tabelaNoIndiceAtual[1]))
         else:
           if buscaParam1[0] <= tabelaNoIndiceAtual[0]:
-              return True
+            return True
           else:
             raise Exception(
               "Erro Semântico: Variável não declarada na linha: "
@@ -1224,8 +1231,8 @@ class Parser:
     else:
       raise Exception(
         "Erro Semântico: parametros inválidos na linha: "
-        + str(tabelaNoIndiceAtual[1]))
-        
+        + str(tabelaNoIndiceAtual[1]))    
+      
   def buscarNaTabelaDeSimbolos(self, simbolo, indice):
     for k in range(len(self.tabelaDeSimbolos)):
       if(self.tabelaDeSimbolos[k] is not None):
