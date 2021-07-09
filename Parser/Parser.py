@@ -19,9 +19,9 @@ class Parser:
     self.indexEscopoAtual += 1
     self.statementList()
     
-    # for linha in self.tabelaDeSimbolos:
-    #    if(linha != None):
-    #     print(linha)
+    for linha in self.tabelaDeSimbolos:
+      if(linha != None):
+        print(linha)
       
     print('\n')
     
@@ -913,9 +913,9 @@ class Parser:
     for linha in self.tabelaDeSimbolos:
       if(linha is not None):
         simbolo = linha[2]
-        #if simbolo == "PROC":
-        #  self.declarationProcSemantico(linha)
-        #         
+        if simbolo == "PROC":
+          self.declarationProcSemantico(linha)
+                 
         if simbolo == "PROCCALL":
           self.callProcSemantico(linha, 4, linha[1])
         if simbolo == "FUNC":
@@ -1130,7 +1130,7 @@ class Parser:
         return False
               
   def expressionSemantico(self, tabelaNoIndiceAtual):
-    if(tabelaNoIndiceAtual[3][0] == "true" or tabelaNoIndiceAtual[3][0] == "false"):
+    if(tabelaNoIndiceAtual[3][0] == "true" or tabelaNoIndiceAtual[3][0] == "false" and len(tabelaNoIndiceAtual[3]) == 1):
       return True
     buscaParam1 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][0], 3)
     
@@ -1142,7 +1142,7 @@ class Parser:
     if (tabelaNoIndiceAtual[3][0]).isnumeric() and (tabelaNoIndiceAtual[3][2]).isnumeric():
       return True
       
-    elif (tabelaNoIndiceAtual[3][0].isalpha() and tabelaNoIndiceAtual[3][2].isalpha()):
+    elif (tabelaNoIndiceAtual[3][0].isalpha() and tabelaNoIndiceAtual[3][2].isalpha()):      
       if buscaParam1 != None and buscaParam2 != None:
         if buscaParam2[2] == "INT" and buscaParam1[2] != "INT":
           raise Exception(
@@ -1228,6 +1228,7 @@ class Parser:
         raise Exception(
           "Erro Semântico: variavel não declarada na linha: "
           + str(tabelaNoIndiceAtual[1]))
+   
     else:
       raise Exception(
         "Erro Semântico: parametros inválidos na linha: "
@@ -1342,7 +1343,7 @@ class Parser:
               + str(tabelaNoIndiceAtual[1])
           )
 
-    if tabelaNoIndiceAtual[3] == "BOOL":
+    if tabelaNoIndiceAtual[3] == "BOOLEAN":
       if (
           tabelaNoIndiceAtual[7][2][0] == "true"
           or tabelaNoIndiceAtual[7][2][0] == "false"
@@ -1351,123 +1352,13 @@ class Parser:
               "Erro Semântico: O retorno espera um boolean na linha: "
               + str(tabelaNoIndiceAtual[1])
           )
+          
       
   def declarationProcSemantico(self, tabelaNoIndiceAtual):
-
-        # Analisar se variaveis e funções usados dentro do procedimento são passados no parametro ou se são declarados antes
-        # print(tabelaNoIndiceAtual)
-        # Quebrando no BOOL quando atualzia a variavel com outro valor
-
-        flag = False
-        cont = 0
-        for k in range(len(self.tabelaDeSimbolos)):
-            # Percorre lista de Block do PROC
-            for i in range(len(tabelaNoIndiceAtual[5])):
-                # Pega as variaveis declaradas da tabela de simbolo
-                if (
-                    self.tabelaDeSimbolos[k][2] == "BOOL"
-                    or self.tabelaDeSimbolos[k][2] == "INT"
-                ):
-                    if tabelaNoIndiceAtual[5][i] == self.tabelaDeSimbolos[k][3]:
-                        # Verificar se a variável encontrada está no escopo/linha menor ou igual
-                        if (
-                            self.tabelaDeSimbolos[k][0] <= tabelaNoIndiceAtual[0]
-                            and self.tabelaDeSimbolos[k][1] <= tabelaNoIndiceAtual[1]
-                        ):
-                            # Chamada de método para verificar o tipo da variavel
-                            # que está sendo atribuída
-                            if self.tabelaDeSimbolos[k][2] == "INT":
-                                if not tabelaNoIndiceAtual[5][i][5].isnumeric():
-                                    raise Exception(
-                                        "Erro Semântico: variável do tipo int não recebe int na linha: "
-                                        + str(tabelaNoIndiceAtual[1])
-                                    )
-                                else:
-                                    cont += 1
-                                    flag = True
-                                    break
-
-                            elif self.tabelaDeSimbolos[k][2] == "BOOL":
-                                if (
-                                    tabelaNoIndiceAtual[5][i][5] == "true"
-                                    or tabelaNoIndiceAtual[5][i][5] == "false"
-                                ):
-                                    cont += 1
-                                    flag = True
-                                    break
-                                else:
-                                    raise Exception(
-                                        "Erro Semântico: variável do tipo booleano não recebe booleano na linha: "
-                                        + str(tabelaNoIndiceAtual[1])
-                                    )
-
-                    else:
-                        for m in range(len(tabelaNoIndiceAtual[5])):
-                            for n in range(len(tabelaNoIndiceAtual[4])):
-                                if (
-                                    tabelaNoIndiceAtual[5][m][3]
-                                    == tabelaNoIndiceAtual[4][n][2]
-                                ):
-                                    if tabelaNoIndiceAtual[4][n][1] == "INT":
-                                        if not tabelaNoIndiceAtual[5][m][5].isnumeric():
-                                            raise Exception(
-                                                "Erro Semântico: variável do tipo int não recebe int na linha: "
-                                                + str(tabelaNoIndiceAtual[1])
-                                            )
-                                        else:
-                                            cont += 1
-                                            flag = True
-                                            break
-
-                                    if tabelaNoIndiceAtual[4][n][1] == "BOOL":
-                                        if (
-                                            tabelaNoIndiceAtual[5][i][5] == "true"
-                                            or tabelaNoIndiceAtual[5][i][5] == "false"
-                                        ):
-                                            cont += 1
-                                            flag = True
-                                            break
-                                        else:
-                                            raise Exception(
-                                                "Erro Semântico: variável do tipo booleano não recebe booleano na linha: "
-                                                + str(tabelaNoIndiceAtual[1])
-                                            )
-                else:
-                    for m in range(len(tabelaNoIndiceAtual[5])):
-                        for n in range(len(tabelaNoIndiceAtual[4])):
-                            if (
-                                tabelaNoIndiceAtual[5][m][3]
-                                == tabelaNoIndiceAtual[4][n][2]
-                            ):
-                                if tabelaNoIndiceAtual[4][n][1] == "INT":
-                                    if not tabelaNoIndiceAtual[5][m][5].isnumeric():
-                                        raise Exception(
-                                            "Erro Semântico: variável do tipo int não recebe int na linha: "
-                                            + str(tabelaNoIndiceAtual[1])
-                                        )
-                                    else:
-                                        cont += 1
-                                        flag = True
-                                        break
-
-                                if tabelaNoIndiceAtual[4][n][1] == "BOOL":
-                                    if (
-                                        tabelaNoIndiceAtual[5][i][5] == "true"
-                                        or tabelaNoIndiceAtual[5][i][5] == "false"
-                                    ):
-                                        cont += 1
-                                        flag = True
-                                        break
-                                    else:
-                                        raise Exception(
-                                            "Erro Semântico: variável do tipo booleano não recebe booleano na linha: "
-                                            + str(tabelaNoIndiceAtual[1])
-                                        )
-
-        # Se der errado a declaração:
-        if flag == False and (cont != len(tabelaNoIndiceAtual[4])):
-            raise Exception(
-                "Erro Semântico: variável não declarada na linha: "
-                + str(tabelaNoIndiceAtual[1])
-            )  
+    for k in range(len(tabelaNoIndiceAtual[4])):
+      if tabelaNoIndiceAtual[4][k][2] != "INT" and tabelaNoIndiceAtual[4][k][2] != "BOOLEAN":
+         raise Exception(
+          "Erro Semântico: Os paramêtros precisam ser INT ou BOOLEAN na linha: "
+          + str(tabelaNoIndiceAtual[0])
+        )       
 
