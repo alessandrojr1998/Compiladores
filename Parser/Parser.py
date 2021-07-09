@@ -1137,6 +1137,11 @@ class Parser:
     if(buscaParam1[2] == "BOOLEAN" and len(tabelaNoIndiceAtual[3]) == 1):
       return True
 
+    if(buscaParam1[2] != "BOOLEAN" and len(tabelaNoIndiceAtual[3]) == 1):
+      raise Exception(
+        "Erro Semântico: parametros inválidos na linha: "
+        + str(tabelaNoIndiceAtual[1]))
+
     buscaParam2 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][2], 3)  
     
     if (tabelaNoIndiceAtual[3][0]).isnumeric() and (tabelaNoIndiceAtual[3][2]).isnumeric():
@@ -1264,6 +1269,7 @@ class Parser:
             "Erro Semântico: procedimento não declarado na linha: "
             + str(tabelaNoIndiceAtual[1])
           )
+  
   def verificarParams(
         self, simboloDeclaradoNaTabela, simbolo, n, tipo, m, linha, escopo
     ):    
