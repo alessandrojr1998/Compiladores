@@ -6,6 +6,8 @@ class Parser:
     self.tabelaDeSimbolos = []
     self.indexEscopoAtual = -1
     self.indexEscopoAntesDaFuncao = 0
+    self.tabelaDeTresEnderecos = []
+    self.tempTresEnderecos = ''
 
   def tokenAtual(self):
     return self.tabTokens[self.indexToken]
@@ -22,7 +24,10 @@ class Parser:
     for linha in self.tabelaDeSimbolos:
       if(linha != None):
         print(linha)
-      
+    print("__________-------------------------------------------_________________")  
+    for linha in self.tabelaDeTresEnderecos:
+      print(linha)
+
     print('\n')
     
     self.checkSemantica()
@@ -142,6 +147,20 @@ class Parser:
         temp.append(self.tokenAtual().tipo)
         self.declarationProcStatement(temp)
         self.tabelaDeSimbolos.append(temp)
+
+        #  INICIO TAB 3 END - PROC
+        
+        nomeDaFuncao = temp[3]
+        paramsDaFuncao = temp[4]
+
+        self.tabelaDeTresEnderecos.append(('label', nomeDaFuncao, 'null'))
+
+        for param in paramsDaFuncao:
+            self.tabelaDeTresEnderecos.append(('pop', param[2], 'null'))
+
+        self.tabelaDeTresEnderecos.append(('ret', 'null', 'null'))
+
+
         return temp
       else:
         raise Exception(
@@ -195,6 +214,8 @@ class Parser:
               "Erro sintático: falta atribuição na linha " +
               str(self.tokenAtual().linha)
           )
+      #  TRES END OK
+      self.tabelaDeTresEnderecos.append(('mov', temp[3], 'temp'))
     else:
           raise Exception(
               "Erro sintático: falta ID na linha " +
@@ -560,6 +581,10 @@ class Parser:
     if self.tokenAtual().tipo == "PLEFT":      
       temp.append(self.paramsPrintStatement())
       self.indexToken += 1
+
+      # TRES END
+      self.tabelaDeTresEnderecos.append(
+          ('print', self.tempTresEnderecos, 'null'))
       if self.tokenAtual().tipo == "PRIGHT":
         self.tabelaDeSimbolos.append(temp)
         self.indexToken += 1
@@ -662,10 +687,20 @@ class Parser:
           raise Exception(
             "Erro sintático: falta parêntese direito na linha "
             + str(self.tokenAtual().linha)
-          )
-                
+          )               
           
         self.indexToken += 1
+        #  INICIO TAB 3 END
+        nomeDaFuncao = temp[3]
+        paramsDaFuncao = temp[4]
+
+        self.tabelaDeTresEnderecos.append(
+            ('label', nomeDaFuncao, 'null'))
+
+        for param in paramsDaFuncao:
+            self.tabelaDeTresEnderecos.append(
+                ('pop', param[2], 'null'))
+
         if self.tokenAtual().tipo == "INIDEL":
           if(self.tokenLookAhead().tipo != "FINDEL"):  
             self.indexEscopoAntesDaFuncao = (self.indexEscopoAtual)
@@ -703,6 +738,13 @@ class Parser:
                 + str(self.tokenAtual().linha)
               )
             self.indexToken +=1
+            # Adiciona na tabela de símbolos
+            self.tabelaDeSimbolos.append(
+                temp)
+            self.tabelaDeTresEnderecos.append(
+                ('push', self.tempTresEnderecos, 'null'))
+            self.tabelaDeTresEnderecos.append(
+                ('ret', 'null', 'null'))
           else:
             raise Exception(
               "Erro sintático: escopo vazio na linha  "
@@ -799,6 +841,8 @@ class Parser:
         + str(self.tokenAtual().linha)
       )   
     else:
+      self.tempTresEnderecos = self.tokenAtual().lexema
+
       return self.tokenAtual().lexema
     
   def declarationProcStatement(self, temp):
@@ -1147,7 +1191,7 @@ class Parser:
     if (tabelaNoIndiceAtual[3][0]).isnumeric() and (tabelaNoIndiceAtual[3][2]).isnumeric():
       return True
       
-    elif (tabelaNoIndiceAtual[3][0].isalpha() and tabelaNoIndiceAtual[3][2].isalpha()):      
+    elif (tabelaNoIndiceAtual[3][0].isalpha() and tabelaNoIndiceAtual[3][2].isalpha()):  
       if buscaParam1 != None and buscaParam2 != None:
         if buscaParam2[2] == "INT" and buscaParam1[2] != "INT":
           raise Exception(
