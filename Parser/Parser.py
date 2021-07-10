@@ -26,10 +26,10 @@ class Parser:
       if(linha != None):
         print(linha) """
     #print("__________-------------------------------------------_________________")  
-   # for linha in self.tabelaDeTresEnderecos:
-    #  print(linha)
+    for linha in self.tabelaDeTresEnderecos:
+      print(linha)
 
-    #print('\n')
+    print('\n')
     
     self.checkSemantica()
     return
@@ -1077,6 +1077,29 @@ class Parser:
             return
           else:
             raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+        
+        #verifica se o retorno da funcao é int
+        elif(linha[2] == "FUNC"):
+          var_return = linha[6][-1]
+          for i in range(len(linha[5])):
+            #percorre todas variaveis de dentro da func de tras pra frente pra garantir que ta checando o tipo correto
+            if(linha[5][len(linha[5])-1-i][3] == var_return):
+              if(linha[5][len(linha[5])-1-i][2] == "INT" ):
+                return
+              elif(linha[5][len(linha[5])-1-i][2] == "ID"):
+              #  print("retorno id")
+                #se for id eu procuro ate achar um que nao seja
+                continue
+              else:
+                raise Exception("Erro Semântico: retorno de tipo incorreto na linha: " + str(simbolo[1]))
+          #se chegar aqui eh pq o retorno nao foi mencionado dentro do escopo da funcao e sera verificado se recebe como parametro
+          for i in range(len(linha[4])):
+            #percorre todas as variaveis recebidas como parametro
+            if(linha[4][i][3] == var_return):
+              if(linha[4][i][2] == "INT" ):
+                return
+              else:
+                raise Exception("Erro Semântico: retorno de tipo incorreto na linha: " + str(simbolo[1]))
         else:
           raise Exception("Erro Semântico: variável de tipo BOOLEAN não pode ser atribuída a INT na linha: " + str(simbolo[1]))
 
@@ -1091,6 +1114,27 @@ class Parser:
            return
           else:
             raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
+
+        elif(linha[2] == "FUNC"):
+          var_return = linha[6][-1]
+          for i in range(len(linha[5])):
+            #percorre todas variaveis de dentro da func de tras pra frente pra garantir que ta checando o tipo correto
+            if(linha[5][len(linha[5])-1-i][3] == var_return):
+              if(linha[5][len(linha[5])-1-i][2] == "BOOLEAN" ):
+                return
+              elif(linha[5][len(linha[5])-1-i][2] == "ID"):
+                #se for id eu procuro ate achar um que nao seja
+                continue
+              else:
+                raise Exception("Erro Semântico: retorno de tipo incorreto na linha: " + str(simbolo[1]))
+          #se chegar aqui eh pq o retorno nao foi mencionado dentro do escopo da funcao e sera verificado se recebe como parametro
+          for i in range(len(linha[4])):
+            #percorre todas as variaveis recebidas como parametro
+            if(linha[4][i][3] == var_return):
+              if(linha[4][i][2] == "BOOLEAN" ):
+                return
+              else:
+                raise Exception("Erro Semântico: retorno de tipo incorreto na linha: " + str(simbolo[1]))
         else:
           raise Exception("Erro Semântico: variável de tipo INT não pode ser atribuída a BOOLEAN na linha: " + str(simbolo[1]))
         # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada  
