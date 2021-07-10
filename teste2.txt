@@ -3,7 +3,6 @@ main{
   int gols1 := 10*1
   gols1 := 11-1+10*2/gols1
   gols1 := 1/12
-  boolean ganhou := true
   ganhou := false
   int i := 1
 
@@ -16,33 +15,29 @@ main{
    
   }endwhile
   
+  if(ganhou){
+    abdullah(true)
+  }endif
+  
+  if(ganhou == true){
+    abdullah(true)
+  }endif
+
   func chutar(int y){ 
-    a := 1 
     int a := 10+1     
     y := 1    
     return a
   }endfunc 
 
-  proc defender(int a, boolean b){    
-    if(b == true){
-      int as := 11 + 1
-      abdullah(a)      
-    }endif
 
-    if(b >= true){
-      a := 20 + 1
-      abdullah(a)      
+  proc defender(boolean bola, int ff){
+    if(ff > 1){
+      abdullah(true)
     }endif
-
-    if(b == true){
-      a := 20 + 1
-      abdullah(a)      
-    }endif
-    else{
-      abdullah(1)
-    }endelse   
   }
-  proccall defender(i, i)
+  
+
+  proccall defender(true, gols1)
 
 }end
 
