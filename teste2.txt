@@ -8,7 +8,7 @@ main{
 
   while(i <= 4){
     int gols13 := 10*1
-    abdullah(3)
+    abdullah(gols13)
     int i := 1
     i := 0+1
     abdullah(true)

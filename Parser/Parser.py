@@ -8,6 +8,7 @@ class Parser:
     self.indexEscopoAntesDaFuncao = 0
     self.tabelaDeTresEnderecos = []
     self.tempTresEnderecos = ''
+    self.tempAtualTresEnd = 0
 
   def tokenAtual(self):
     return self.tabTokens[self.indexToken]
@@ -216,6 +217,12 @@ class Parser:
           )
       #  TRES END OK
       self.tabelaDeTresEnderecos.append(('mov', temp[3], 'temp'))
+      
+      if(len(temp[5]) > 1):
+        print('temp0', temp[5][0],temp[5][1], temp[5][2])
+        print(temp[5])
+        print(len(temp[5]))
+        print("TEEEMp", temp)
     else:
           raise Exception(
               "Erro sintático: falta ID na linha " +
@@ -579,12 +586,13 @@ class Parser:
     self.indexToken += 1
    
     if self.tokenAtual().tipo == "PLEFT":      
-      temp.append(self.paramsPrintStatement())
+      lexema = self.paramsPrintStatement()
+      temp.append(lexema)
       self.indexToken += 1
 
       # TRES END
       self.tabelaDeTresEnderecos.append(
-          ('print', self.tempTresEnderecos, 'null'))
+          ('print := '+ lexema))
       if self.tokenAtual().tipo == "PRIGHT":
         self.tabelaDeSimbolos.append(temp)
         self.indexToken += 1
@@ -742,9 +750,7 @@ class Parser:
             self.tabelaDeSimbolos.append(
                 temp)
             self.tabelaDeTresEnderecos.append(
-                ('push', self.tempTresEnderecos, 'null'))
-            self.tabelaDeTresEnderecos.append(
-                ('ret', 'null', 'null'))
+                ('return := ' + self.tempTresEnderecos))
           else:
             raise Exception(
               "Erro sintático: escopo vazio na linha  "
