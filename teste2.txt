@@ -1,6 +1,8 @@
 main{
   boolean ganhou := true
+  int gooooool := 1
   int gols1 := 10*1
+  int gols873 := 1+1+2+2
   gols1 := 11-1+10*2/gols1
   gols1 := 1/12
   ganhou := false
