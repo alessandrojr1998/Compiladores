@@ -216,38 +216,40 @@ class Parser:
               str(self.tokenAtual().linha)
           )
       #  TRES END OK
-      #self.tabelaDeTresEnderecos.append(('mov', temp[3], 'temp'))
-      if(len(temp[5]) > 1):
-        if(len(temp[5]) == 3):   
-          self.tabelaDeTresEnderecos.append((temp[3]+ ' := ' + temp[5][0] + temp[5][1] + temp[5][2]))
-          self.tempAtualTresEnd += 1
-        else:
-          self.salvarVariaveisTresEnd(temp)    
-      else:
-        self.tabelaDeTresEnderecos.append((temp[3] + ' := ' + temp[5][0]))
+      self.salvarVariaveisTresEnd(temp)    
+
     else:
           raise Exception(
               "Erro sintático: falta ID na linha " +
               str(self.tokenAtual().linha)
           )
+
   def salvarVariaveisTresEnd(self, dados):
-    lista = dados[5][::-1]
-    contador = 0    
-    self.tabelaDeTresEnderecos.append(("temp"+str(self.tempAtualTresEnd) + " := " + lista[contador] + lista[contador+1] + lista[contador+2]))
-    contador += 3
-    self.tempAtualTresEnd += 1
-    if(contador < len(lista)):
-      self.recursivo(lista, contador)
-    self.tabelaDeTresEnderecos.append((dados[3] + ' := ' + "temp"+str(self.tempAtualTresEnd-1)))
+    if(len(dados[5]) > 1):
+      if(len(dados[5]) == 3):   
+        self.tabelaDeTresEnderecos.append((dados[3]+ ' := ' + dados[5][2] + dados[5][1] + dados[5][0]))
+        self.tempAtualTresEnd += 1
+      else:
+        lista = dados[5][::-1]
+        contador = 0    
+        self.tabelaDeTresEnderecos.append(("temp"+str(self.tempAtualTresEnd) + " := " + lista[contador+2] + lista[contador+1] + lista[contador]))
+        contador += 3
+        self.tempAtualTresEnd += 1
+        if(contador < len(lista)):
+          self.salvarValores(lista, contador)
+        self.tabelaDeTresEnderecos.append((dados[3] + ' := ' + "temp"+str(self.tempAtualTresEnd-1)))
       
+    else:
+      self.tabelaDeTresEnderecos.append((dados[3] + ' := ' + dados[5][0]))
+    
  
-  def recursivo(self, lista, contador):
+  def salvarValores(self, lista, contador):
     if(contador < len(lista)):
       self.tabelaDeTresEnderecos.append(("temp"+str(self.tempAtualTresEnd)  + " := " "temp"+str(self.tempAtualTresEnd-1) + lista[contador] + lista[contador+1]))
       self.tempAtualTresEnd += 1
       contador += 2
       if(contador < len(lista) + 2):
-        self.recursivo(lista, contador)
+        self.salvarValores(lista, contador)
       
 
   def typeVar(self, tempEndVar):
@@ -688,8 +690,11 @@ class Parser:
            
             self.callOpStatement(tempVar)
           temp.append(tempVar)
-          self.tabelaDeSimbolos.append(temp)       
-         
+          self.tabelaDeSimbolos.append(temp)   
+
+          print("TEEEEMp", temp)    
+          print(self.tabelaDeTresEnderecos.append((temp[3] + ' := ' + temp[5][0])))
+          self.salvarVariaveisTresEnd(temp)
             
           
        
