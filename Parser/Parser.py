@@ -25,11 +25,11 @@ class Parser:
     """ for linha in self.tabelaDeSimbolos:
       if(linha != None):
         print(linha) """
-    print("__________-------------------------------------------_________________")  
-    for linha in self.tabelaDeTresEnderecos:
-      print(linha)
+    #print("__________-------------------------------------------_________________")  
+   # for linha in self.tabelaDeTresEnderecos:
+    #  print(linha)
 
-    print('\n')
+    #print('\n')
     
     self.checkSemantica()
     return
@@ -990,6 +990,7 @@ class Parser:
   def checkSemantica(self):
     for linha in self.tabelaDeSimbolos:
       if(linha is not None):
+        #print(linha)
         simbolo = linha[2]
         if simbolo == "PROC":
           self.declarationProcSemantico(linha)
@@ -1011,9 +1012,8 @@ class Parser:
          # verifica se simbolos de atribicao ja foram declarados
           self.declaration_boolean_semantico(linha)
 
-      #  if simbolo == "ID":
-        #  self.declaration_id_semantico(linha)
-      #    print("eh id")
+        if simbolo == "ID":
+          self.declaration_id_semantico(linha)
 
         if simbolo == "IF":
           self.expressionSemantico(linha)
@@ -1121,12 +1121,12 @@ class Parser:
             # Verificando se há duas var. com msm nome
             if linha2[3] == simbolo[3] and linha2[2] != simbolo[2]:
               # Se houver, verifica se a variavel está visivel no escopo da qual foi chamada
-              if linha2[0] >= simbolo[0] and linha2[1] < simbolo[1]:
+              if linha2[0] <= simbolo[0] and linha2[1] < simbolo[1]:
                 #verificando os atributos do id
                 if(linha2[2] == "INT"):
                   self.variaveis_atribuicao_semantico(simbolo)
                 elif(linha2[2] == "BOOLEAN"):
-                  print("aq")
+                  #print("aq")
                   self.variaveis_atribuicao_semantico_boolean(simbolo)
               else:
                 raise Exception("Erro Semântico: variável não declarada na linha: " + str(simbolo[1]))
