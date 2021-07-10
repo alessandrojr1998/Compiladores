@@ -149,18 +149,20 @@ class Parser:
         self.declarationProcStatement(temp)
         self.tabelaDeSimbolos.append(temp)
 
-        #  INICIO TAB 3 END - PROC
+        #  INICIO TAB 3 END - PROC           
         
+        #  INICIO TAB 3 END
         nomeDaFuncao = temp[3]
         paramsDaFuncao = temp[4]
-
-        self.tabelaDeTresEnderecos.append(('label', nomeDaFuncao, 'null'))
-
+        
+        params = '('
         for param in paramsDaFuncao:
-            self.tabelaDeTresEnderecos.append(('pop', param[2], 'null'))
+          params += param[3] + ", "
+        params = params[:-2]   
+        params += ")" 
 
-        self.tabelaDeTresEnderecos.append(('ret', 'null', 'null'))
-
+        self.tabelaDeTresEnderecos.append(
+            ('proc '+ nomeDaFuncao + params))   
 
         return temp
       else:
@@ -691,9 +693,7 @@ class Parser:
             self.callOpStatement(tempVar)
           temp.append(tempVar)
           self.tabelaDeSimbolos.append(temp)   
-
-          print("TEEEEMp", temp)    
-          print(self.tabelaDeTresEnderecos.append((temp[3] + ' := ' + temp[5][0])))
+ 
           self.salvarVariaveisTresEnd(temp)
             
           
@@ -727,13 +727,15 @@ class Parser:
         #  INICIO TAB 3 END
         nomeDaFuncao = temp[3]
         paramsDaFuncao = temp[4]
+        
+        params = '('
+        for param in paramsDaFuncao:
+          params += param[3] + ", "
+        params = params[:-2]   
+        params += ")"  
 
         self.tabelaDeTresEnderecos.append(
-            ('label', nomeDaFuncao, 'null'))
-
-        for param in paramsDaFuncao:
-            self.tabelaDeTresEnderecos.append(
-                ('pop', param[2], 'null'))
+            ('func '+ nomeDaFuncao + params))     
 
         if self.tokenAtual().tipo == "INIDEL":
           if(self.tokenLookAhead().tipo != "FINDEL"):  
