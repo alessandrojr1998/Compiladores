@@ -92,6 +92,8 @@ class Parser:
         temp.append(self.tokenAtual().linha)
         temp.append(self.tokenAtual().tipo)
         self.ifStatementWhile(temp, isProc)
+
+        """ print(temp) """
         return temp
       else:
         temp = []
@@ -99,6 +101,16 @@ class Parser:
         temp.append(self.tokenAtual().linha)
         temp.append(self.tokenAtual().tipo)
         self.ifStatement(temp, isProc)
+
+
+        """ print(temp)
+        condicao = temp[3]
+        params = '('
+        for param in condicao:
+          params += param[3] + ", "
+        print("temp"+str(self.tempAtualTresEnd)+" := "+condicao)
+        print(condicao) """
+
         return temp
     
     if self.tokenAtual().tipo == "PRINT":
@@ -151,7 +163,6 @@ class Parser:
 
         #  INICIO TAB 3 END - PROC           
         
-        #  INICIO TAB 3 END
         nomeDaFuncao = temp[3]
         paramsDaFuncao = temp[4]
         
@@ -177,6 +188,20 @@ class Parser:
       temp.append(self.tokenAtual().tipo)
       self.callProc(temp)
       self.tabelaDeSimbolos.append(temp)
+
+      #TAB 3 END - PROCCALL
+      nomeDaFuncao = temp[3]
+      paramsDaFuncao = temp[4]
+      
+      params = '('
+      for param in paramsDaFuncao:
+        params += param + ", "
+      params = params[:-2]   
+      params += ")" 
+
+      self.tabelaDeTresEnderecos.append(
+          ('proccall '+ nomeDaFuncao + params))  
+
       return temp
     
     if self.tokenAtual().tipo == "BREAK" or self.tokenAtual().tipo == "CONTINUE":
