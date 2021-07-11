@@ -76,6 +76,7 @@ class Parser:
       raise Exception("Erro sintático na linha " + str(self.tokenAtual().linha))
   
   def blockStatement(self, isWhile = False, isIf = False, isProc = False):  
+ 
     if self.tokenAtual().tipo == "INT" or self.tokenAtual().tipo == "BOOLEAN":    
       temp = []
       temp.append(self.indexEscopoAtual)
@@ -211,14 +212,20 @@ class Parser:
       else:
         if self.tokenAtual().tipo == "BREAK":
           raise Exception(
-            "Erro sintático: BREAK chamado fora de um laço linha " +
+            "Erro sintático: BREAK chamado fora de um laço na linha " +
             str(self.tokenAtual().linha)
             )    
         elif self.tokenAtual().tipo == "CONTINUE":
           raise Exception(
-            "Erro sintático: CONTINUE chamado fora de um laço linha " +
+            "Erro sintático: CONTINUE chamado fora de um laço na linha " +
             str(self.tokenAtual().linha)
-            )         
+            )        
+    if self.tokenAtual().tipo == "RETURN":
+     
+      raise Exception(
+            "Erro sintático: RETURN chamado fora de uma função na linha " +
+            str(self.tokenAtual().linha)
+            )  
     self.indexToken +=1
     return
 
