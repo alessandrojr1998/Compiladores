@@ -9,6 +9,7 @@ class Parser:
     self.tabelaDeTresEnderecos = []
     self.tempTresEnderecos = ''
     self.tempAtualTresEnd = 0
+    self.tempAtualIfTresEnd = 0
 
   def tokenAtual(self):
     return self.tabTokens[self.indexToken]
@@ -26,8 +27,8 @@ class Parser:
       if(linha != None):
         print(linha) """
     #print("__________-------------------------------------------_________________")  
-    """ for linha in self.tabelaDeTresEnderecos:
-      print(linha) """
+    for linha in self.tabelaDeTresEnderecos:
+      print(linha)
 
     print('\n')
     
@@ -94,7 +95,16 @@ class Parser:
         temp.append(self.tokenAtual().tipo)
         self.ifStatementWhile(temp, isProc)
 
-        """ print(temp) """
+        condicao = temp[3]
+        params = ''
+        for param in condicao:
+          params += param + ", "
+        params = params[:-2]  
+        self.tabelaDeTresEnderecos.append("temp"+str(self.tempAtualTresEnd)+" := "+params)
+        self.tabelaDeTresEnderecos.append("if false temp"+str(self.tempAtualTresEnd)+" go to fimIf"+str(self.tempAtualIfTresEnd))
+        self.tabelaDeTresEnderecos.append("fimIf"+str(self.tempAtualIfTresEnd)+":")
+        self.tempAtualTresEnd += 1
+        self.tempAtualIfTresEnd += 1
         return temp
       else:
         temp = []
@@ -103,14 +113,16 @@ class Parser:
         temp.append(self.tokenAtual().tipo)
         self.ifStatement(temp, isProc)
 
-
-        """ print(temp)
         condicao = temp[3]
-        params = '('
+        params = ''
         for param in condicao:
-          params += param[3] + ", "
-        print("temp"+str(self.tempAtualTresEnd)+" := "+condicao)
-        print(condicao) """
+          params += param + ", "
+        params = params[:-2]  
+        self.tabelaDeTresEnderecos.append("temp"+str(self.tempAtualTresEnd)+" := "+params)
+        self.tabelaDeTresEnderecos.append("if false temp"+str(self.tempAtualTresEnd)+" go to fimIf"+str(self.tempAtualIfTresEnd))
+        self.tabelaDeTresEnderecos.append("fimIf"+str(self.tempAtualIfTresEnd)+":")
+        self.tempAtualTresEnd += 1
+        self.tempAtualIfTresEnd += 1
 
         return temp
     
