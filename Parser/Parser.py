@@ -10,6 +10,8 @@ class Parser:
     self.tempTresEnderecos = ''
     self.tempAtualTresEnd = 0
     self.tempAtualIfTresEnd = 0
+    self.tempBoolWhileTresEnd = 0
+    self.tempBoolWhileFimTresEnd = 0
 
   def tokenAtual(self):
     return self.tabTokens[self.indexToken]
@@ -140,6 +142,19 @@ class Parser:
       temp.append(self.tokenAtual().linha)
       temp.append(self.tokenAtual().tipo)
       self.whileStatement(temp, isProc)
+
+      condicao = temp[3]
+      params = ''
+      for param in condicao:
+        params += param + ", "
+      params = params[:-2]  
+      self.tabelaDeTresEnderecos.append("temp"+str(self.tempAtualTresEnd)+" := "+params)
+      self.tabelaDeTresEnderecos.append("boolWhile"+str(self.tempBoolWhileTresEnd)+" := "+"temp"+str(self.tempAtualTresEnd))
+      self.tabelaDeTresEnderecos.append("if false boolWhile"+str(self.tempBoolWhileTresEnd)+" go to fimWhi"+str(self.tempBoolWhileFimTresEnd))
+      self.tabelaDeTresEnderecos.append("fimWhi"+str(self.tempBoolWhileFimTresEnd)+":")
+      self.tempBoolWhileTresEnd += 1
+      self.tempBoolWhileFimTresEnd += 1
+
       return temp
     
     if self.tokenAtual().tipo == "ID":
