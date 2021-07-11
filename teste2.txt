@@ -6,7 +6,7 @@ main{
   gols1 := 11-1+10*2/gols1
   gols1 := 1/12
   ganhou := false
-  int i := 1
+  int i := 1 
 
   while(i <= 4){
     int gols13 := 10*1
@@ -14,10 +14,10 @@ main{
     int i := 1
     i := 0+1
     abdullah(true)
-   
+    
   }endwhile
   
-  if(ganhou){
+  if(true == ganhou){
     abdullah(true)
   }endif
   

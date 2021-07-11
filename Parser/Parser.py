@@ -26,8 +26,8 @@ class Parser:
       if(linha != None):
         print(linha) """
     #print("__________-------------------------------------------_________________")  
-    for linha in self.tabelaDeTresEnderecos:
-      print(linha)
+    """ for linha in self.tabelaDeTresEnderecos:
+      print(linha) """
 
     print('\n')
     
@@ -340,16 +340,18 @@ class Parser:
     
     if self.tokenAtual().tipo == "ID" or self.tokenAtual().tipo == "NUM" or self.tokenAtual().tipo == "LOGIC":
       tempExpression.append(self.tokenAtual().lexema)
-      if(self.tokenAtual().tipo == "LOGIC" and self.tokenAtual().lexema != 'false'):
+      if(self.tokenAtual().tipo == "LOGIC" and self.tokenAtual().lexema != 'false' and self.tokenAtual().lexema != 'true'):
         self.indexToken += 1
+        print(self.tokenAtual())
         if self.tokenAtual().tipo == "PRIGHT":
           return tempExpression
         else:
+          print("AAA")
           raise Exception(
             "Erro sintático: falta do parêntese direito na linha "+
             str(self.tokenAtual().linha)
         )
-      elif(self.tokenAtual().tipo == "LOGIC" and self.tokenAtual().lexema == 'false'):
+      elif(self.tokenAtual().tipo == "LOGIC" and self.tokenAtual().lexema == 'false' and self.tokenAtual().lexema != 'true'):
         raise Exception(
           "Erro sintático: a condição do while não pode ser false, na linha "+
           str(self.tokenAtual().linha)
@@ -1284,7 +1286,8 @@ class Parser:
         return False
               
   def expressionSemantico(self, tabelaNoIndiceAtual):
-    if(tabelaNoIndiceAtual[3][0] == "true" or tabelaNoIndiceAtual[3][0] == "false" and len(tabelaNoIndiceAtual[3]) == 1):
+  
+    if((tabelaNoIndiceAtual[3][0] == "true" or tabelaNoIndiceAtual[3][0] == "false") and len(tabelaNoIndiceAtual[3]) == 1):     
       return True
     buscaParam1 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][0], 3)
     
@@ -1295,12 +1298,55 @@ class Parser:
       raise Exception(
         "Erro Semântico: parametros inválidos na linha: "
         + str(tabelaNoIndiceAtual[1]))
-
-    buscaParam2 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][2], 3)  
+ 
+    buscaParam2 = self.buscarNaTabelaDeSimbolos(tabelaNoIndiceAtual[3][2], 3)
     
     if (tabelaNoIndiceAtual[3][0]).isnumeric() and (tabelaNoIndiceAtual[3][2]).isnumeric():
       return True
-      
+    
+    elif(tabelaNoIndiceAtual[3][0].isalpha() and (tabelaNoIndiceAtual[3][2] == "true" or tabelaNoIndiceAtual[3][2] == "false")): 
+      if buscaParam1 != None:
+        if buscaParam1[2] == "BOOLEAN":
+          if (
+              tabelaNoIndiceAtual[3][1] == "=="
+              or tabelaNoIndiceAtual[3][1] == "!="):
+                return True
+          else:
+            raise Exception(
+                "Erro Semântico: Não é possível fazer este tipo de comparação com Boolean na linha: "
+                + str(tabelaNoIndiceAtual[1]))
+          
+        else:
+          raise Exception(
+            "Erro Semântico: Não é possível comparar dois tipos diferentes na linha: "
+            + str(tabelaNoIndiceAtual[1]))
+      else:
+        raise Exception(
+          "Erro Semântico: variavel não declarada na linha: "
+          + str(tabelaNoIndiceAtual[1]))
+
+    elif((tabelaNoIndiceAtual[3][0] == "true" or tabelaNoIndiceAtual[3][0] == "false") and tabelaNoIndiceAtual[3][2].isalpha()):  
+       
+      if buscaParam2 != None:
+        if buscaParam2[2] == "BOOLEAN":
+          if (
+              tabelaNoIndiceAtual[3][1] == "=="
+              or tabelaNoIndiceAtual[3][1] == "!="):
+                return True
+          else:
+            raise Exception(
+                "Erro Semântico: Não é possível fazer este tipo de comparação com Boolean na linha: "
+                + str(tabelaNoIndiceAtual[1]))
+          
+        else:
+          raise Exception(
+            "Erro Semântico: Não é possível comparar dois tipos diferentes na linha: "
+            + str(tabelaNoIndiceAtual[1]))
+      else:
+        raise Exception(
+          "Erro Semântico: variavel não declarada na linha: "
+          + str(tabelaNoIndiceAtual[1]))
+          
     elif (tabelaNoIndiceAtual[3][0].isalpha() and tabelaNoIndiceAtual[3][2].isalpha()):  
       if buscaParam1 != None and buscaParam2 != None:
         if buscaParam2[2] == "INT" and buscaParam1[2] != "INT":
@@ -1350,7 +1396,7 @@ class Parser:
         raise Exception(
           "Erro Semântico: variavel não declarada na linha: "
           + str(tabelaNoIndiceAtual[1]))
-     
+    
     elif tabelaNoIndiceAtual[3][0].isalpha() and tabelaNoIndiceAtual[3][2].isnumeric():     
       if buscaParam1 != None:
         if buscaParam1[2] != "INT":
@@ -1371,6 +1417,7 @@ class Parser:
           + str(tabelaNoIndiceAtual[1]))  
         
     elif (tabelaNoIndiceAtual[3][0]).isnumeric() and tabelaNoIndiceAtual[3][2].isalpha():
+      
       if buscaParam2 != None:
         if buscaParam2[2] != "INT":
           raise Exception(
@@ -1388,6 +1435,15 @@ class Parser:
           "Erro Semântico: variavel não declarada na linha: "
           + str(tabelaNoIndiceAtual[1]))
    
+    elif ((tabelaNoIndiceAtual[3][0] == "true" or tabelaNoIndiceAtual[3][0] == "false") and tabelaNoIndiceAtual[3][2].isnumeric()):
+      raise Exception(
+            "Erro Semântico: Não é possível comparar dois tipos diferentes na linha: "
+            + str(tabelaNoIndiceAtual[1]))
+    
+    elif (tabelaNoIndiceAtual[3][0].isnumeric() and (tabelaNoIndiceAtual[3][2] == "true" or tabelaNoIndiceAtual[3][2] == "false")):
+      raise Exception(
+            "Erro Semântico: Não é possível comparar dois tipos diferentes na linha: "
+            + str(tabelaNoIndiceAtual[1]))
     else:
       raise Exception(
         "Erro Semântico: parametros inválidos na linha: "
