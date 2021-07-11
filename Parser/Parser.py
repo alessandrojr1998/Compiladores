@@ -254,7 +254,7 @@ class Parser:
   def salvarVariaveisTresEnd(self, dados):
     if(len(dados[5]) > 1):
       if(len(dados[5]) == 3):   
-        self.tabelaDeTresEnderecos.append((dados[3]+ ' := ' + dados[5][2] + dados[5][1] + dados[5][0]))
+        self.tabelaDeTresEnderecos.append((dados[3]+ ' := ' + dados[5][0] + dados[5][1] + dados[5][2]))
         self.tempAtualTresEnd += 1
       else:
         lista = dados[5][::-1]
